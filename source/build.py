@@ -1,5 +1,6 @@
 from pathlib import Path
 import math, json, csv, re
+from PIL import Image
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -16,7 +17,21 @@ from content import SLIDES, SOURCES
 
 ROOT=Path(__file__).parent
 OUT=ROOT/'交付文件'; OUT.mkdir(exist_ok=True)
+PHOTODIR=ROOT/'assets'/'photos'
 B='153E75'; R='E3464F'; W='FFFFFF'; FONT='Noto Sans CJK SC'
+PHOTO_CREDITS=[
+ ('tablet-hand.jpg','Towfiqu barbhuiya','https://www.pexels.com/photo/hand-holding-a-pill-15703464/','Pexels License','https://www.pexels.com/license/'),
+ ('pill-bottle.jpg','Pexels photo 16051935','https://www.pexels.com/photo/16051935/','Pexels License','https://www.pexels.com/license/'),
+ ('college-campus.jpg','George Pak','https://www.pexels.com/photo/7972512/','Pexels License','https://www.pexels.com/license/'),
+ ('evening.jpg','LZ Jian','https://www.pexels.com/photo/black-lamp-beside-bed-5968800/','Pexels License','https://www.pexels.com/license/'),
+ ('pharmacy-01.jpg','Árpád Czapp','https://unsplash.com/photos/a-room-filled-with-lots-of-shelves-filled-with-boxes-and-boxes-tvP6pCnq9iI','Unsplash License','https://unsplash.com/license'),
+ ('pharmacy-02.jpg','National Cancer Institute','https://unsplash.com/photos/pharmacist-reaching-for-medication-on-shelf-byGTytEGjBo','Unsplash License','https://unsplash.com/license'),
+ ('pharmacy-03.jpg','paws and prints','https://unsplash.com/photos/sQjHIOhiL0E','Unsplash License','https://unsplash.com/license'),
+ ('hospital-02.jpg','Tasha Kostyuk','https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8','Unsplash License','https://unsplash.com/license'),
+ ('clinic-01.jpg','Martha Dominguez de Gouveia','https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE','Unsplash License','https://unsplash.com/license'),
+]
+PHOTO_BY_PAGE={1:['tablet-hand.jpg'],2:['tablet-hand.jpg'],5:['college-campus.jpg','pharmacy-01.jpg','pharmacy-02.jpg','hospital-02.jpg'],6:['pill-bottle.jpg'],9:['pill-bottle.jpg'],14:['pharmacy-03.jpg','pharmacy-02.jpg','pill-bottle.jpg'],15:['college-campus.jpg'],16:['evening.jpg'],18:['pill-bottle.jpg'],19:['pharmacy-03.jpg'],21:['pill-bottle.jpg'],22:['pill-bottle.jpg','pharmacy-01.jpg','tablet-hand.jpg'],23:['pharmacy-02.jpg'],24:['hospital-02.jpg'],25:['pharmacy-01.jpg'],27:['tablet-hand.jpg'],28:['pharmacy-01.jpg'],30:['clinic-01.jpg']}
+PHOTO_INDEX={item[0]:item for item in PHOTO_CREDITS}
 P=Presentation(); P.slide_width=Inches(13.333333); P.slide_height=Inches(7.5)
 P.core_properties.title='合理用药：给宿舍药箱上堂课'
 P.core_properties.subject='苏州大学选修课｜双人35分钟课堂展示'
@@ -84,6 +99,21 @@ def clock(s,x,y,d=.8):
     circle(s,x,y,d,W,B,2);line(s,x+d/2,y+d/2,x+d/2,y+d*.2,R,2);line(s,x+d/2,y+d/2,x+d*.73,y+d*.61,B,2)
 def arrow(s,x,y,w=.55,c=R): return shape(s,MSO_SHAPE.CHEVRON,x,y,w,.42,c,c,0)
 def badge(s,t,x,y,w=1.5,c=R):rect(s,x,y,w,.36,c,c,0,True);txt(s,t,x+.08,y+.02,w-.16,.28,12,W,True,PP_ALIGN.CENTER)
+def photo(s,name,x,y,w,h,credit=True):
+    """Place a real photograph with an undistorted, center-cropped view."""
+    path=PHOTODIR/name
+    with Image.open(path) as im: iw,ih=im.size
+    pic=s.shapes.add_picture(str(path),Inches(x),Inches(y),Inches(w),Inches(h))
+    source_ratio=iw/ih; box_ratio=w/h
+    if source_ratio>box_ratio:
+        cut=(1-box_ratio/source_ratio)/2;pic.crop_left=cut;pic.crop_right=cut
+    else:
+        cut=(1-source_ratio/box_ratio)/2;pic.crop_top=cut;pic.crop_bottom=cut
+    frame=rect(s,x,y,w,h,W,B,1.5);frame.fill.background()
+    if credit:
+        rect(s,x+.02,y+h-.35,w-.04,.33,W,W,0)
+        txt(s,'真实照片 · 场景示意',x+.14,y+h-.32,w-.28,.26,10,B,True)
+    return pic
 def base(d,dark=False):
     s=P.slides.add_slide(P.slide_layouts[6]);s.background.fill.solid();s.background.fill.fore_color.rgb=color(B if dark else W)
     if not dark:
@@ -95,7 +125,8 @@ def base(d,dark=False):
         txt(s,f"{d['n']:02d} / 30",11.75,7.06,.9,.28,11,B,False,PP_ALIGN.RIGHT)
     # speaker notes include full source URLs, not just numbers
     ss='\n'.join(f'[{sid}] {title}\n{url}' for sid,title,url in SOURCES if sid in d['refs'].split('; '))
-    s.notes_slide.notes_text_frame.text=f"第{d['n']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}"
+    photo_notes='\n'.join(f"{PHOTO_INDEX[n][1]}｜{PHOTO_INDEX[n][2]}｜{PHOTO_INDEX[n][3]}" for n in PHOTO_BY_PAGE.get(d['n'],[]))
+    s.notes_slide.notes_text_frame.text=f"第{d['n']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n真实照片为图库场景示意，不呈现虚构案例中的真实人物、药品或事件。\n图片来源：\n{photo_notes}"
     return s
 def panel(s,x,y,w,h,title,body,num=None):
     rect(s,x,y,w,h,W,B,1.4,True)
@@ -118,24 +149,23 @@ for d in SLIDES:
         txt(s,'给宿舍药箱上堂课',.78,2.86,6.7,.76,32,W,True)
         txt(s,it[0],.8,4.02,6.7,.53,23,W)
         txt(s,it[1]+'\n'+it[2],.8,5.5,6.9,.97,17,W)
-        rect(s,8.1,1.16,4.55,5.35,W,W,0,True)
-        person(s,8.4,1.72,1.02)
-        medbox(s,10.57,3.53,1.17,1.6,'先核对')
-        book(s,8.8,5.3,1.52);cup(s,11.3,5.08,.78)
-        line(s,8.4,6.03,12.25,6.03,B,3);pill(s,11.13,2.1,1.0,.43)
+        photo(s,'tablet-hand.jpg',8.1,1.16,4.55,5.35)
         txt(s,'35分钟 · 2位讲者 · 4部分',.8,7.03,10,.28,12,W)
     elif kind=='closing':
         badge(s,'把判断带回生活',.8,.72,2.3)
-        txt(s,'药可以常备，\n判断不能省略。',.8,1.65,11.7,1.9,45,W,True)
-        for j,t in enumerate(it):txt(s,t,.9,4.05+j*.55,10.5,.42,23,W)
-        txt(s,'会看 · 会核 · 会问 · 会记',.9,6.18,9,.52,25,W,True)
-        pill(s,11,5.7,1.4,.58);txt(s,'谢谢大家',10.65,6.68,2,.36,17,W)
+        txt(s,'药可以常备，\n判断不能省略。',.8,1.65,7.35,1.9,43,W,True)
+        for j,t in enumerate(it):txt(s,t,.9,4.05+j*.55,7.2,.42,21,W)
+        txt(s,'会看 · 会核 · 会问 · 会记',.9,6.18,7.5,.52,25,W,True)
+        photo(s,'clinic-01.jpg',8.65,1.55,3.8,4.88)
+        txt(s,'谢谢大家',10.65,6.68,2,.36,17,W)
     elif kind=='quiz':
+        quiz_photo={2:'tablet-hand.jpg',9:'pill-bottle.jpg',19:'pharmacy-03.jpg',28:'pharmacy-01.jpg'}[d['n']]
         for j,t in enumerate(it):
-            rect(s,.8,2.02+j*1.27,11.73,1.02,W,B,1.6,True)
+            rect(s,.8,2.02+j*1.27,9.24,1.02,W,B,1.6,True)
             circle(s,1.03,2.21+j*1.27,.62,B,B,0)
             txt(s,t[0],1.03,2.24+j*1.27,.62,.52,23,W,True,PP_ALIGN.CENTER)
-            txt(s,t[2:],1.95,2.13+j*1.27,10.05,.79,25,B)
+            txt(s,t[2:],1.95,2.13+j*1.27,7.79,.79,23,B)
+        photo(s,quiz_photo,10.27,2.02,2.25,3.56)
     elif kind=='four':
         for j,t in enumerate(it):
             a,b=splititem(t);x=.8+(j%2)*6.04;y=1.98+(j//2)*2.05
@@ -146,14 +176,11 @@ for d in SLIDES:
         for j,t in enumerate(it):
             x=.78+j*3.17
             rect(s,x,2.24,2.96,3.45,W,B,1.4,True)
-            a,b=t.split('｜');txt(s,a[:2],x+.25,2.58,2.5,.8,50,R,True)
-            txt(s,a[3:],x+.25,3.85,2.5,.6,27,B,True);txt(s,b,x+.25,4.75,2.5,.48,22,B)
+            photo(s,['college-campus.jpg','pharmacy-01.jpg','pharmacy-02.jpg','hospital-02.jpg'][j],x+.12,2.36,2.72,1.32,False)
+            a,b=t.split('｜');txt(s,a[:2],x+.25,3.78,2.5,.55,34,R,True)
+            txt(s,a[3:],x+.25,4.45,2.5,.5,25,B,True);txt(s,b,x+.25,5.06,2.5,.38,18,B)
     elif kind=='case':
-        rect(s,.77,2.03,4.06,3.93,W,B,1.4,True)
-        person(s,1.55,2.68,1.08,sleepy=d['n']==16)
-        if d['n']==6:medbox(s,3.5,4.06,.75,1.15,'A');medbox(s,2.74,4.25,.62,.98,'B')
-        if d['n']==15:book(s,2.72,5.44,1.4);badge(s,'“提分保证”？',1.05,2.17,2.7)
-        if d['n']==16:book(s,2.8,5.38,1.5)
+        photo(s,{6:'pill-bottle.jpg',15:'college-campus.jpg',16:'evening.jpg'}[d['n']],.77,2.03,4.06,3.93)
         for j,t in enumerate(it):
             a,b=splititem(t)
             if not b and '：' in t:a,b=t.split('：',1)
@@ -239,31 +266,37 @@ for d in SLIDES:
     elif kind=='three':
         for j,t in enumerate(it):
             a,b=splititem(t);x=.82+j*4.2
-            panel(s,x,2.18,3.77,3.66,a,b,f'0{j+1}')
+            rect(s,x,2.18,3.77,3.66,W,B,1.4,True)
+            photo(s,(['pharmacy-03.jpg','pharmacy-02.jpg','pill-bottle.jpg'] if d['n']==14 else ['pill-bottle.jpg','pharmacy-01.jpg','tablet-hand.jpg'])[j],x+.13,2.3,3.51,1.35,False)
+            badge(s,f'0{j+1}',x+.23,3.8,.58)
+            txt(s,a,x+.23,4.24,3.3,.46,22,B,True)
+            txt(s,b,x+.23,4.86,3.28,.7,18,B)
     elif kind=='answer':
         txt(s,'C' if d['n']==10 else 'B',.82,2.25,2.3,2.3,120,R,True,PP_ALIGN.CENTER)
         textrows(s,it,x=3.45,y=2.12,w=9.03,step=1.23,size=25)
     elif kind=='drinks':
-        cup(s,1.04,2.31,1.18,True);medbox(s,2.68,2.27,1.08,1.72,'需确认');cup(s,4.61,2.79,1.02)
-        txt(s,'先不喝酒\n再核对要求',.99,4.56,4.85,1.12,29,R,True)
+        photo(s,'pill-bottle.jpg',1.04,2.17,4.65,3.58)
         for j,t in enumerate(it):
             a,b=splititem(t);txt(s,a,6.06,2.08+j*1.32,6.34,.49,22,B,True);txt(s,b,6.06,2.65+j*1.32,6.34,.53,20,B)
     elif kind=='leaflet':
         rect(s,1.02,1.97,11.27,4.12,W,B,2,True)
         for j,t in enumerate(it):
-            x=1.32+(j%2)*5.47;y=2.23+(j//2)*1.19
+            x=1.29+(j%2)*4.03;y=2.23+(j//2)*1.19
             circle(s,x,y,.55,R,R,0);txt(s,str(j+1),x,y+.03,.55,.45,20,W,True,PP_ALIGN.CENTER)
-            txt(s,t,x+.78,y-.01,4.42,.67,23,B,True)
-        txt(s,'教学阅读示意，不是实际药品说明书',1.25,5.83,10.8,.2,12,B)
+            txt(s,t,x+.72,y-.01,3.2,.67,19,B,True)
+        photo(s,'pill-bottle.jpg',9.42,2.16,2.55,3.49)
+        txt(s,'请以手中的真实说明书为准',1.25,5.83,7.8,.2,12,B)
     elif kind=='chat':
-        person(s,1.16,2.73,1.03);rect(s,3.94,2.16,8.45,3.72,W,B,1.5,True)
+        photo(s,'pharmacy-02.jpg',.9,2.16,2.75,3.72)
+        rect(s,3.94,2.16,8.45,3.72,W,B,1.5,True)
         textrows(s,it,x=4.25,y=2.3,w=7.79,step=1.08,size=23)
     elif kind=='urgent':
         rect(s,.85,2.12,3.12,3.79,R,R,0,True);txt(s,'120',1.1,2.8,2.6,1.08,64,W,True,PP_ALIGN.CENTER);txt(s,'严重急症\n立即求助',1.18,4.36,2.43,1.08,25,W,True,PP_ALIGN.CENTER)
+        photo(s,'hospital-02.jpg',10.45,2.14,2.0,3.74)
         for j,t in enumerate(it):
-            a,b=splititem(t);txt(s,a,4.39,2.17+j*1.25,8.13,.51,22,B,True);txt(s,b,4.39,2.75+j*1.25,8.13,.42,20,R)
+            a,b=splititem(t);txt(s,a,4.39,2.17+j*1.25,5.85,.51,20,B,True);txt(s,b,4.39,2.75+j*1.25,5.85,.42,19,R)
     elif kind=='kit':
-        rect(s,1,2.74,3.6,2.8,W,B,3,True);rect(s,1.95,2.24,1.66,.5,W,B,3,True);cross(s,2.24,3.49,1.11)
+        photo(s,'pharmacy-01.jpg',1,2.24,3.6,3.3)
         textrows(s,it,x=5.03,y=2.29,w=7.43,step=1.22,size=24)
     elif kind=='recap':
         for j,t in enumerate(it):
@@ -271,7 +304,7 @@ for d in SLIDES:
             txt(s,f'{j+1:02d}',.84,yy,.69,.49,23,R,True)
             txt(s,a,1.76,yy,4.46,.54,23,B,True);arrow(s,6.46,yy+.06,.4);txt(s,b,7.31,yy,5.01,.54,23,B)
     elif kind=='finalcase':
-        person(s,1.05,2.88,1.04)
+        photo(s,'tablet-hand.jpg',.87,2.08,2.75,3.67)
         for j,t in enumerate(it):
             a,b=splititem(t);yy=2.08+j*1.28;rect(s,4.0,yy,8.46,1.04,W,B,1.5,True);txt(s,t,4.28,yy+.12,7.89,.78,24,B)
 
@@ -287,8 +320,26 @@ for page,start in enumerate(range(0,len(SOURCES),5),1):
         for p in o.text_frame.paragraphs:
             for run in p.runs:run.hyperlink.address=url
         line(s,1.73,yy+.76,12.59,yy+.76,B,.45)
-    txt(s,'图表按原始数据重绘；人物、药盒与机制示意为原创。完整来源与数据表见配套材料。',.78,7.02,11.9,.3,12,B)
+    txt(s,'图表按原始数据重绘；案例为虚构，实拍照片另见图片来源附页。',.78,7.02,11.9,.3,12,B)
     s.notes_slide.notes_text_frame.text='参考文献附页，不逐页讲解。\n\n'+'\n\n'.join(f'[{a}] {b}\n{c}' for a,b,c in SOURCES[start:start+5])
+
+for page,start in enumerate(range(0,len(PHOTO_CREDITS),5),1):
+    s=P.slides.add_slide(P.slide_layouts[6]);s._element.set('show','0')
+    s.background.fill.solid();s.background.fill.fore_color.rgb=color(W)
+    txt(s,f'真实照片来源 / {page}',.7,.52,11,.65,31,B,True)
+    txt(s,'图片为真实图库照片，仅作课堂场景示意；照片中的人物、药物、场所与虚构案例无关。',.72,1.25,11.9,.6,15,R)
+    for j,(name,creator,url,license_name,license_url) in enumerate(PHOTO_CREDITS[start:start+5]):
+        yy=1.96+j*.95
+        badge(s,f'P{start+j+1}',.77,yy,.7,B)
+        o=txt(s,f'{creator} · {name}',1.73,yy-.06,10.88,.42,14.5,B)
+        for p in o.text_frame.paragraphs:
+            for run in p.runs:run.hyperlink.address=url
+        o2=txt(s,license_name+' · 点击标题访问原图',1.73,yy+.37,10.88,.32,11,R)
+        for p in o2.text_frame.paragraphs:
+            for run in p.runs:run.hyperlink.address=license_url
+        line(s,1.73,yy+.79,12.59,yy+.79,B,.45)
+    txt(s,'附页，不计入35分钟｜完整原图链接与许可见配套文件。',.78,7.02,11.9,.3,12,B)
+    s.notes_slide.notes_text_frame.text='真实照片来源附页，不逐页讲解。\n\n'+'\n\n'.join(f'{name}｜{creator}\n{url}\n{license_name}: {license_url}' for name,creator,url,license_name,license_url in PHOTO_CREDITS[start:start+5])
 
 P.save(OUT/'合理用药_双人35分钟.pptx')
 
@@ -314,7 +365,7 @@ def sourceparas(doc):
         doc.add_paragraph(f'[{sid}] {title}');p=doc.add_paragraph(url);p.paragraph_format.space_after=DP(10)
 
 doc=setupdoc('合理用药\n双人逐页演讲稿')
-doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜30页主讲＋3页参考资料附页')
+doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜30页主讲＋3页文献附页＋2页图片来源附页')
 doc.add_paragraph('目标：面向具有高中生物基础的非医学专业大一学生，学会处理常见用药选择并识别误区。全部小苏故事均为虚构情境；真实研究单独标明。')
 doc.add_heading('35分钟时间与分工',1)
 table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—5','00:00—05:00','基本原则'],['第二部分','6—19','05:00—22:00','五类宿舍误区'],['第三部分','20—26','22:00—30:00','安全用药方法'],['第四部分','27—30','30:00—35:00','简单综合选择题与收尾']])
@@ -340,7 +391,7 @@ doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 guide=setupdoc('合理用药\n大纲、逐页设计与资料核验')
 guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容完整性15分、互动效果15分、时间把握10分。围绕“课堂可读、案例可讲、选择可做、时间可控”落实。')
 guide.add_heading('整体方案',1)
-table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；蓝 #153E75、红 #E3464F、白 #FFFFFF；不引入其他模板色。标题约30pt，主体20—30pt。'],['图片','原创矢量人物、药盒、药箱、水杯、细菌和病毒示意，均为PowerPoint可编辑形状。'],['图表','第8页为PowerPoint原生图表；第13页为可编辑矢量图，含不确定性区间。'],['互动','三次穿插投票＋一题综合挑战；A/B/C举手，不要求开放表达。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','蛋白质结构与功能、受体与信号、细菌和病毒、变异与自然选择。'],['文件使用','PPT内含3页隐藏参考文献；PDF用于预览，编辑请使用PPTX。']])
+table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','18页主讲页加入9张不同的真实图库照片，按版面裁切后嵌入PPT；案例照片仅作场景示意。机制示意仍为可编辑形状。'],['图表','第8页为PowerPoint原生图表；第13页为可编辑矢量图，含不确定性区间。'],['互动','三次穿插投票＋一题综合挑战；A/B/C举手，不要求开放表达。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','蛋白质结构与功能、受体与信号、细菌和病毒、变异与自然选择。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
 guide.add_heading('四部分大纲',1)
 table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场情境；合理用药四原则；靶点示意；四段路线。'],['2 宿舍误区','6—19','重复成分；两篇研究图表；抗生素与耐药；备考产品；抗过敏嗜睡；酒精相互作用。'],['3 安全用药','20—26','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','27—30','复方感冒药＋聚餐情境；三选一；逐项揭晓；三句收尾。']])
 guide.add_heading('逐页文案与图片 / 图表说明',1)
@@ -348,7 +399,7 @@ for d in SLIDES:
     guide.add_heading(f"{d['n']:02d}｜{d['title']}",2)
     guide.add_paragraph('页面短文案：'+'；'.join(d['items']))
     guide.add_paragraph('底部关键句：'+d['takeaway'])
-    guide.add_paragraph('视觉：'+d['visual'])
+    guide.add_paragraph('视觉：'+d['visual']+('；另嵌入真实照片：'+'、'.join(PHOTO_BY_PAGE[d['n']]) if d['n'] in PHOTO_BY_PAGE else ''))
     guide.add_paragraph(f"分工与时间：{d['speaker']}，{d['sec']}秒。依据：{d['refs'] or '原创课堂组织 / 综合归纳'}。")
 guide.add_heading('数据口径与重绘规则',1)
 guide.add_paragraph('图1（第8页）：Wolf等，2012年，500名美国成人门诊参与者，模拟非处方对乙酰氨基酚用药任务。单一产品任务中23.8%安排出24小时超过4克的用量；联用任务中45.6%出现重复成分造成的潜在超量。4克为该研究的判定口径，不是本课给出的用药建议，也不能代替中国具体药品说明书的限量。两指标可能重叠，不相加；不能解释为实际中毒、肝损伤或中国大学生发生率。原始数值保留一位小数，条形轴从0至100%。')
@@ -367,6 +418,11 @@ for t in [
 guide.add_heading('评分点与排练检查',1)
 table(guide,['评分项','检查动作'],[['PPT制作 30','后排能读到主体文字；三色统一；图形无遮挡；不直接念参考文献。'],['语言表达 30','用自己的语气练熟讲稿；每页只围绕一个重点；甲乙交接自然；数据解释口径。'],['内容完整性 15','四部分完整；五类案例齐全；原则、机制和行动互相对应。'],['互动效果 15','先给阅读时间，再逐项举手；投票后揭晓；即使无人举手也继续解释。'],['时间把握 10','至少完整计时排练一次；检查5、22、30分钟节点；主线约35分钟。']])
 guide.add_heading('完整参考资料',1);sourceparas(guide)
+guide.add_heading('真实照片来源与许可',1)
+guide.add_paragraph('以下均为真实图库照片，非生成图。图库照片仅说明场景；人物、药品、建筑与小苏虚构案例无关，也不代表苏州大学校园。Pexels 与 Unsplash 许可允许将照片用于演示文稿；保留摄影者与原图链接便于复核。')
+for name,creator,url,license_name,license_url in PHOTO_CREDITS:
+    guide.add_paragraph(f'{name}｜{creator}｜{license_name}')
+    guide.add_paragraph(url+'\n'+license_url)
 guide.add_paragraph('检索日期：2026-10-09。网页更新时间可能改变；论文数值按上述固定发表版本使用。全文由课堂语言转述，未照搬整段原文或未授权品牌图像。')
 guide.save(OUT/'合理用药_大纲与逐页设计说明.docx')
 
@@ -378,9 +434,18 @@ with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newli
     cw.writerow([13,'归因于细菌耐药的死亡',127,'万人',91.1,171,'2019全球估计；95%不确定性区间','S5'])
 
 with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
-    f.write('合理用药：给宿舍药箱上堂课\n30页主讲＋3页隐藏参考资料，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、插画和图表可编辑。第8页图表右键“编辑数据”；第13页数值改动时需同步调整图形长度和区间。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 参考资料页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。校园故事、插画及说明书标签均为原创教学示意。\n\n')
+    f.write('合理用药：给宿舍药箱上堂课\n30页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、机制示意和图表可编辑；照片可在PPT中替换或裁切。第8页图表右键“编辑数据”；第13页数值改动时需同步调整图形长度和区间。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。校园故事及教学标签为原创示意；真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
     for a,b,c in SOURCES:f.write(f'[{a}] {b}\n{c}\n\n')
+    f.write('真实照片来源与许可：\n')
+    for name,creator,url,license_name,license_url in PHOTO_CREDITS:
+        f.write(f'{name}｜{creator}\n原图：{url}\n许可：{license_name} {license_url}\n\n')
     f.write('检索日期：2026-10-09\n')
+
+with (OUT/'真实照片来源.csv').open('w',encoding='utf-8-sig',newline='') as f:
+    writer=csv.writer(f);writer.writerow(['文件','摄影者/来源','原图页面','使用许可','许可链接','使用页码'])
+    for name,creator,url,license_name,license_url in PHOTO_CREDITS:
+        pages='、'.join(str(n) for n,photos in PHOTO_BY_PAGE.items() if name in photos)
+        writer.writerow([name,creator,url,license_name,license_url,pages])
 
 (ROOT/'slides.json').write_text(json.dumps(SLIDES,ensure_ascii=False,indent=2),encoding='utf-8')
 print('Created files:',*[str(p) for p in OUT.iterdir()],sep='\n')

@@ -1,0 +1,35 @@
+{
+  "slides_total": 35,
+  "main_slides": 30,
+  "hidden_source_slides": 5,
+  "photo_pages": [
+    1,
+    2,
+    5,
+    6,
+    9,
+    14,
+    15,
+    16,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    27,
+    28,
+    30
+  ],
+  "photo_instances": 25,
+  "unique_photos": 9,
+  "planned_seconds": 2100,
+  "pdf_main_pages": 30,
+  "bounds_issues": [],
+  "template_colors": [
+    "153E75",
+    "E3464F",
+    "FFFFFF"
+  ]
+}
