@@ -1,0 +1,56 @@
+合理用药：给宿舍药箱上堂课
+30页主讲＋3页隐藏参考资料，35分钟含互动。
+
+使用步骤：
+1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。
+2. 打开演示者视图，备注含逐页讲稿。
+3. 主讲文字、插画和图表可编辑。第8页图表右键“编辑数据”；第13页数值改动时需同步调整图形长度和区间。
+4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。
+5. 参考资料页设为隐藏，放映时跳过；编辑视图仍可查看。
+6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。
+
+研究数据按原文重绘。校园故事、插画及说明书标签均为原创教学示意。
+
+[S1] 国家卫生健康委等（2020）《关于加强医疗机构药事管理促进合理用药的意见》
+https://www.nhc.gov.cn/yzygj/c100068/202002/fdb7240014db4d49827ca25bbb41b177.shtml
+
+[S2] FDA. Don’t Overuse Acetaminophen.
+https://www.fda.gov/consumers/consumer-updates/dont-overuse-acetaminophen
+
+[S3] Wolf MS, et al. Risk of Unintentional Overdose with Non-Prescription Acetaminophen Products. J Gen Intern Med. 2012;27:1587–1593. DOI: 10.1007/s11606-012-2096-3.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3509295/
+
+[S4] CDC. Healthy Habits: Antibiotic Do’s and Don’ts.
+https://www.cdc.gov/antibiotic-use/about/
+
+[S5] Antimicrobial Resistance Collaborators. Global burden of bacterial antimicrobial resistance in 2019: a systematic analysis. Lancet. 2022;399:629–655. DOI: 10.1016/S0140-6736(21)02724-0.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8841637/
+
+[S6] FDA（2023）Updating warnings to improve safe use of prescription stimulants used to treat ADHD and other conditions.
+https://www.fda.gov/drugs/drug-safety-communications/fda-updating-warnings-improve-safe-use-prescription-stimulants-used-treat-adhd-and-other-conditions
+
+[S7] 市场监管总局《关于防范保健食品功能声称虚假宣传的消费提示》
+https://www.samr.gov.cn/xw/zj/art/2023/art_d03ccbcf0c7e482198c4adfa23f9e59a.html
+
+[S8] NHS. Antihistamines.
+https://www.nhs.uk/medicines/antihistamines/
+
+[S9] NIAAA. Alcohol-Medication Interactions: Potentially Dangerous Mixes.
+https://www.niaaa.nih.gov/health-professionals-communities/core-resource-on-alcohol/alcohol-medication-interactions-potentially-dangerous-mixes
+
+[S10] NHS Specialist Pharmacy Service. Advising on missed or delayed doses of medicines.
+https://sps.nhs.uk/articles/advising-on-missed-or-delayed-doses-of-medicines/
+
+[S11] CDC. Manage Common Cold.
+https://www.cdc.gov/common-cold/treatment/index.html
+
+[S12] NHS. Anaphylaxis.
+https://www.nhs.uk/conditions/anaphylaxis/
+
+[S13] NHS. Omeprazole.
+https://www.nhs.uk/medicines/omeprazole/
+
+[S14] Simons FER, Simons KJ. H1 Antihistamines: Current Status and Future Directions. World Allergy Organ J. 2008;1:145–155.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3650962/
+
+检索日期：2026-10-09
