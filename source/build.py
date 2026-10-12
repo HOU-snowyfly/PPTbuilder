@@ -39,7 +39,8 @@ PHOTO_CREDITS=[
  ('hospital-02.jpg','Tasha Kostyuk','https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8','Unsplash License','https://unsplash.com/license'),
  ('clinic-01.jpg','Martha Dominguez de Gouveia','https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE','Unsplash License','https://unsplash.com/license'),
 ]
-PHOTO_BY_PAGE={1: ['tablet-hand.jpg'], 5: ['college-campus.jpg', 'pharmacy-01.jpg', 'pharmacy-02.jpg', 'hospital-02.jpg'], 21: ['pill-bottle.jpg'], 22: ['pill-bottle.jpg', 'pharmacy-01.jpg', 'tablet-hand.jpg'], 23: ['pharmacy-02.jpg'], 24: ['hospital-02.jpg'], 25: ['pharmacy-01.jpg'], 27: ['tablet-hand.jpg'], 30: ['clinic-01.jpg']}
+PHOTO_BY_PAGE={1:['tablet-hand.jpg'],21:['pill-bottle.jpg'],23:['pharmacy-02.jpg'],24:['hospital-02.jpg'],25:['pharmacy-01.jpg'],30:['clinic-01.jpg']}
+PHOTO_CREDITS=[row for row in PHOTO_CREDITS if row[0] in {name for photos in PHOTO_BY_PAGE.values() for name in photos}]
 PHOTO_INDEX={item[0]:item for item in PHOTO_CREDITS}
 P=Presentation(); P.slide_width=Inches(13.333333); P.slide_height=Inches(7.5)
 P.core_properties.title='合理用药：给宿舍药箱上堂课'
@@ -119,9 +120,6 @@ def photo(s,name,x,y,w,h,credit=True):
     else:
         cut=(1-source_ratio/box_ratio)/2;pic.crop_top=cut;pic.crop_bottom=cut
     frame=rect(s,x,y,w,h,W,B,1.5);frame.fill.background()
-    if credit:
-        rect(s,x+.02,y+h-.35,w-.04,.33,W,W,0)
-        txt(s,'真实照片 · 场景示意',x+.14,y+h-.32,w-.28,.26,10,B,True)
     return pic
 def base(d,dark=False):
     s=P.slides.add_slide(P.slide_layouts[6]);s.background.fill.solid();s.background.fill.fore_color.rgb=color(B if dark else W)
@@ -129,8 +127,7 @@ def base(d,dark=False):
         rect(s,.55,.4,.07,.27,R,R,0);txt(s,PARTS[d['part']],.75,.32,4,.45,13,B,True)
         txt(s,d['title'],.65,.98,12.05,.78,30,B,True)
         line(s,.65,6.39,12.68,6.39,B,.7)
-        txt(s,d['takeaway'],.7,6.5,11.75,.47,17,R,True)
-        txt(s,('来源：'+d['refs']+'  ·  完整链接见附页') if d['refs'] else '合理用药｜课堂科普',.7,7.12,10.5,.2,9,B)
+        txt(s,d['takeaway'],.7,6.5,11.75,.47,19,R if d['n']==24 else B,True)
         txt(s,f"{d['page']:02d} / {MAIN_COUNT}",11.75,7.06,.9,.28,11,B,False,PP_ALIGN.RIGHT)
     # speaker notes include full source URLs, not just numbers
     ss='\n'.join(f'[{sid}] {title}\n{url}' for sid,title,url in SOURCES if sid in d['refs'].split('; '))
@@ -210,7 +207,6 @@ for d in SLIDES:
             circle(s,x,y,.55,R,R,0);txt(s,str(j+1),x,y+.03,.55,.45,20,W,True,PP_ALIGN.CENTER)
             txt(s,t,x+.72,y-.01,3.2,.67,19,B,True)
         photo(s,'pill-bottle.jpg',9.42,2.16,2.55,3.49)
-        txt(s,'请以手中的真实说明书为准',1.25,5.83,7.8,.2,12,B)
     elif kind=='chat':
         photo(s,'pharmacy-02.jpg',.9,2.16,2.75,3.72)
         rect(s,3.94,2.16,8.45,3.72,W,B,1.5,True)
@@ -290,15 +286,15 @@ def sourceparas(doc):
         doc.add_paragraph(f'[{sid}] {title}');p=doc.add_paragraph(url);p.paragraph_format.space_after=DP(10)
 
 doc=setupdoc('合理用药\n双人逐页演讲稿')
-doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜28页主讲＋3页文献附页＋2页图片来源附页')
+doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜27页主讲＋3页文献附页＋2页图片来源附页')
 doc.add_paragraph('目标：面向具有高中生物基础的非医学专业大一学生，学会处理常见用药选择并识别误区。全部小苏故事均为虚构情境；真实研究单独标明。')
 doc.add_heading('35分钟时间与分工',1)
-table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—5','00:00—05:00','基本原则'],['第二部分','6—17','05:00—22:00','四类宿舍误区'],['第三部分','18—24','22:00—30:00','安全用药方法'],['第四部分','25—28','30:00—35:00','简单综合选择题与收尾']])
-doc.add_paragraph('甲主讲第1—14页，计划15分55秒；乙主讲第15—28页，计划19分05秒。第27页甲补充约15秒，第28页共同收尾。第14页末交接。')
+table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—4','00:00—05:00','基本原则'],['第二部分','5—16','05:00—22:00','四类宿舍误区'],['第三部分','17—23','22:00—30:00','安全用药方法'],['第四部分','24—27','30:00—35:00','简单综合选择题与收尾']])
+doc.add_paragraph('甲主讲第1—13页，计划15分55秒；乙主讲第14—27页，计划19分05秒。第26页甲补充约15秒，第27页共同收尾。第13页末交接。')
 doc.add_paragraph('互动时，一人主持，另一人观察举手并翻页。不要求同学解释观点，不询问私人疾病史。参考资料页设为隐藏，课堂主线不会自动进入附页。')
 doc.add_heading('排练与控时',1)
 doc.add_paragraph('计时是演讲目标，不是自动播放。稿件文字量以本次生成的逐页讲稿为准，另有停顿、读题、举手与同桌讨论，按自然讲解语速排练后校准。首次完整计时，优先把总时长控制在34—36分钟；不要为凑时间机械拖慢每句话。')
-doc.add_paragraph('到第5页末约5分钟，第17页末约22分钟，第24页末约30分钟。超时1分钟：第16页投票点评和第17页角色对话各缩短约30秒。提前1分钟：让大家分别读第12页处方比例与相对风险图，补充第8页的信息核对，不临时增加医学结论。')
+doc.add_paragraph('到第4页末约5分钟，第16页末约22分钟，第23页末约30分钟。超时1分钟：第15页投票点评和第16页角色对话各缩短约30秒。提前1分钟：让大家读第11页处方格子与急诊图标，补充第7页的信息核对，不临时增加医学结论。')
 doc.add_paragraph('使用PowerPoint演示者视图查看备注。翻页采用手动点击，不设自动计时；答案页在投票后再显示。把封面的“同学甲/同学乙”替换成姓名。正式展示前，在实际电脑上检查字体和投影。')
 elapsed=0
 for d in SLIDES:
@@ -309,16 +305,16 @@ for d in SLIDES:
     if d['refs']:doc.add_paragraph('本页依据：'+d['refs'])
     elapsed+=d['sec']
 doc.add_heading('互动答案速查',1)
-table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择（单选）','3','4','B'],['重复成分（多选）','9','10','A＋C'],['聚餐饮酒（单选）','16','17页案例揭晓','C'],['综合挑战（多选）','26','27','A＋B']])
+table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择（单选）','3','4','B'],['重复成分（多选）','8','9','A＋C'],['聚餐饮酒（单选）','15','16页案例揭晓','C'],['综合挑战（多选）','25','26','A＋B']])
 doc.add_heading('参考资料',1);sourceparas(doc)
 doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 
 guide=setupdoc('合理用药\n大纲、逐页设计与资料核验')
 guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容完整性15分、互动效果15分、时间把握10分。围绕“课堂可读、案例可讲、选择可做、时间可控”落实。')
 guide.add_heading('整体方案',1)
-table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；图示采用青绿、紫色、橙黄点缀；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','9页主讲保留7张实际使用的图库照片；情境采用原创动漫三格与课堂场景；对白可编辑，画面作为图片替换或裁切，机制图和成分示意均为可编辑形状。'],['图表','第8页为宿舍用药信息核对案例；第12页为100格处方比例与1至最高10倍风险示意，明确两个不同口径。'],['互动','2道单选与2道多选；室友群建议点赞，逐条举手，多选可重复举手。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','从用药现象引出信号传递；细菌和病毒；组胺双路径。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
+table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；图示采用青绿、紫色、橙黄点缀；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','6页主讲使用6张各出现一次的图库照片；17幅不同动漫分镜各出现一次，情境、选择题和综合挑战均避免复用；对白可编辑，画面作为图片替换或裁切，机制图和成分示意均为可编辑形状。'],['图表','第7页为宿舍用药信息核对案例；第11页为100格处方比例与五个急诊图标，呈现不必要处方及药物反应负担。'],['互动','2道单选与2道多选；室友群建议点赞，逐条举手，多选可重复举手。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','从用药现象引出信号传递；细菌和病毒；组胺双路径。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
 guide.add_heading('四部分大纲',1)
-table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','6—17','重复成分；已服药信息核对；抗生素不必要处方及感染风险；抗过敏嗜睡；先投票后聚餐案例。'],['3 安全用药','18—24','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','25—28','复方感冒药＋聚餐情境；多选建议；逐项揭晓；三句收尾。']])
+table(guide,['部分','页码','要点'],[['1 基本原则','1—4','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','5—16','重复成分；已服药信息核对；抗生素不必要处方及感染风险；抗过敏嗜睡；先投票后聚餐案例。'],['3 安全用药','17—23','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','24—27','复方感冒药＋聚餐情境；多选建议；逐项揭晓；三句收尾。']])
 guide.add_heading('逐页文案与图片 / 图表说明',1)
 for d in SLIDES:
     guide.add_heading(f"{d['page']:02d}｜{d['title']}",2)
@@ -327,9 +323,9 @@ for d in SLIDES:
     guide.add_paragraph('视觉：'+d['visual']+('；另嵌入真实照片：'+'、'.join(PHOTO_BY_PAGE[d['n']]) if d['n'] in PHOTO_BY_PAGE else ''))
     guide.add_paragraph(f"分工与时间：{d['speaker']}，{d['sec']}秒。依据：{d['refs'] or '原创课堂组织 / 综合归纳'}。")
 guide.add_heading('数据口径与重绘规则',1)
-guide.add_paragraph('第8页为虚构宿舍用药案例，不再展示模拟超量研究比例。18点与20点只作故事时间线，不是给药间隔；核对具体药名、成分、规格与已服时间和用量。依据S2。')
-guide.add_paragraph('第12页左图：CDC汇总美国门诊抗生素处方至少28%不必要，其所引Hersh等2021年论文该估计来自2014—2015年。100格只高亮28格，剩余格不表示全部合理，不把它当成中国或大学生发生率。右图：CDC About C. diff（2026年5月更新）指出用药期间及结束后1个月，艰难梭菌感染风险最高可达10倍。条形以1为比较基准，只展示最高风险倍数，不表示人人风险或绝对发生率。两图不同口径不能相乘。来源S5、S15、S16。')
-guide.add_paragraph('处方比例采用100格图，风险倍数采用共用0—10刻度的条形示意；不同口径各自成图，不将两数混在同一数轴。原始数值、地域、时间窗与解释边界另附CSV。')
+guide.add_paragraph('第7页为虚构宿舍用药案例，不再展示模拟超量研究比例。18点与20点只作故事时间线，不是给药间隔；核对具体药名、成分、规格与已服时间和用量。依据S2。')
+guide.add_paragraph('第11页左图：CDC汇总美国门诊抗生素处方至少28%不必要，所引Hersh等2021年论文该估计来自2014—2015年。100格高亮28格，剩余格不表示全部合理，不把它当成中国或大学生发生率。右图：CDC科普资料指出，药物相关急诊约五次有一次由抗生素反应引起。五个急诊图标突出一个；分母为药物反应相关急诊，不是所有急诊，也不是每五名服药者有一人进急诊。不将所有反应归因于滥用，不把两图比例相乘。来源S5、S15、S16。')
+guide.add_paragraph('处方比例采用100格图；药物相关急诊中抗生素反应约占五分之一，用五个急诊图标突出一个表示。图标代表统计比例，不表示服药者个人风险。来源、统计范围和解释边界另附CSV，主讲页面保留结论与必要分母。')
 guide.add_heading('教学边界与常见追问',1)
 for t in [
  '问：感冒就一定不能用抗生素？答：普通感冒通常由病毒引起，抗生素不能治疗病毒；是否合并细菌感染或属于其他疾病，需要医生评估。',
@@ -355,10 +351,10 @@ guide.save(OUT/'合理用药_大纲与逐页设计说明.docx')
 with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newline='') as f:
     cw=csv.writer(f);cw.writerow(['页码','指标','数值','单位','下限','上限','口径','来源'])
     cw.writerow([order_index[13],'不必要抗生素处方比例',28,'%', '', '', '美国门诊2014—2015估计；CDC表述至少28%；非中国或大学生发生率','S5; S16'])
-    cw.writerow([order_index[13],'艰难梭菌感染相对风险最高值',10,'倍', '', '', 'CDC汇总风险上限说明；用药期间及结束后1个月；不是绝对发生率或个体风险','S15'])
+    cw.writerow([order_index[13],'药物相关急诊中抗生素反应占比',20,'约%', '', '', 'CDC美国科普汇总：约1/5药物相关急诊由抗生素反应引起；非所有急诊、非服药者风险，不全归因于滥用','S15'])
 
 with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
-    f.write('合理用药：给宿舍药箱上堂课\n28页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第8页是信息核对案例；第12页数值改动时需同步修改source/visuals.py中的格子数量、风险倍数与说明。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
+    f.write('合理用药：给宿舍药箱上堂课\n27页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
     for a,b,c in SOURCES:f.write(f'[{a}] {b}\n{c}\n\n')
     f.write('真实照片来源与许可：\n')
     for name,creator,url,license_name,license_url in PHOTO_CREDITS:
