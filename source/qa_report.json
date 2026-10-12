@@ -1,6 +1,22 @@
 {
   "revision_date": "2026-10-12",
-  "revision_round": 2,
+  "revision_round": 3,
+  "anime_pages": [
+    3,
+    5,
+    6,
+    8,
+    9,
+    14,
+    15,
+    16,
+    17,
+    26
+  ],
+  "anime_panel_instances": 17,
+  "anime_artwork": "source/assets/anime/storyboard.png",
+  "anime_artwork_sha256": "2ee57b68d49ce14e1c33561657398214ab69a181837ccc62e7d7da3b58a3ca5a",
+  "removed_redundant_labels": true,
   "slides_total": 33,
   "main_slides": 28,
   "hidden_source_slides": 5,
@@ -118,6 +134,8 @@
     "无越界图形",
     "第11页→第12页直接衔接；旧12和15已删除",
     "第16页先投票；第17页案例再揭晓",
+    "动漫原图、原生裁切、17个动漫实例与10个使用页一致",
+    "情境/对话/悬念等冗余阶段标签未出现在主讲页",
     "讲稿、设计说明、CSV与多选答案同步",
     "5、22、30、35分钟计划节点一致"
   ],
