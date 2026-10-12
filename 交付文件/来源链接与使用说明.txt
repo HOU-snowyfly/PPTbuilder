@@ -4,7 +4,7 @@
 使用步骤：
 1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。
 2. 打开演示者视图，备注含逐页讲稿。
-3. 主讲文字、机制示意和图表可编辑；照片可在PPT中替换或裁切。第8页图表右键“编辑数据”；第13页数值改动时需同步调整图形长度和区间。
+3. 主讲文字、彩色漫画、机制示意和图表均可编辑；照片可在PPT中替换或裁切。第8页是信息核对案例；第13页数值改动时需同步修改source/visuals.py中的数值与区间。
 4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。
 5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。
 6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。
@@ -90,4 +90,4 @@ clinic-01.jpg｜Martha Dominguez de Gouveia
 原图：https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE
 许可：Unsplash License https://unsplash.com/license
 
-检索日期：2026-10-09
+原始资料检索：2026-10-09；版面及题目修订：2026-10-12
