@@ -4,6 +4,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.oxml.xmlchemy import OxmlElement
 
 INK='203354'; TEAL='008C82'; PURPLE='7952D5'; ORANGE='FFBE45'
 CORAL='EB5969'; MINT='E4F8EF'; LILAC='F1EAFF'; CREAM='FFF2D3'
@@ -15,6 +16,8 @@ class Canvas:
     def shape(self,kind,x,y,w,h,fill=WHITE,stroke=None,lw=1.5):
         o=self.s.shapes.add_shape(kind,Inches(x),Inches(y),Inches(w),Inches(h))
         o.fill.solid();o.fill.fore_color.rgb=RGBColor.from_string(fill)
+        o._element.spPr.append(OxmlElement('a:effectLst'))
+        for effect in o._element.xpath('.//a:effectRef'):effect.set('idx','0')
         if stroke:o.line.color.rgb=RGBColor.from_string(stroke);o.line.width=Pt(lw)
         else:o.line.fill.background()
         if kind==MSO_SHAPE.ROUNDED_RECTANGLE:o.adjustments[0]=.10
@@ -23,7 +26,10 @@ class Canvas:
     def oval(self,x,y,w,h,fill=WHITE,stroke=None):return self.shape(MSO_SHAPE.OVAL,x,y,w,h,fill,stroke)
     def line(self,x1,y1,x2,y2,c=INK,lw=2):
         o=self.s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,Inches(x1),Inches(y1),Inches(x2),Inches(y2))
-        o.line.color.rgb=RGBColor.from_string(c);o.line.width=Pt(lw);return o
+        o.line.color.rgb=RGBColor.from_string(c);o.line.width=Pt(lw)
+        o._element.spPr.append(OxmlElement('a:effectLst'))
+        for effect in o._element.xpath('.//a:effectRef'):effect.set('idx','0')
+        return o
     def text(self,t,x,y,w,h,size=20,c=INK,bold=False,center=False):
         o=self.s.shapes.add_textbox(Inches(x),Inches(y),Inches(w),Inches(h));tf=o.text_frame
         tf.word_wrap=True;tf.margin_left=tf.margin_right=tf.margin_top=tf.margin_bottom=Pt(0)
@@ -102,7 +108,9 @@ def ingredient(c):
     c.text('只有这一种有效成分',1.30,4.34,4.6,.39,19,TEAL,True,True)
     for text,y,color in [('马来酸氯苯那敏',4.04,TEAL),('盐酸伪麻黄碱',4.61,PURPLE)]:
         c.box(7.37,y,4.72,.45,color);c.text(text,7.48,y+.04,4.50,.35,19,WHITE,True,True)
-    c.line(3.62,3.89,6.67,5.60,CORAL,2.5);c.line(9.73,3.89,6.67,5.60,CORAL,2.5)
+    c.line(5.98,3.60,6.43,3.60,CORAL,2.5);c.line(6.43,3.60,6.43,5.22,CORAL,2.5)
+    c.line(7.37,3.60,6.90,3.60,CORAL,2.5);c.line(6.90,3.60,6.90,5.22,CORAL,2.5)
+    c.line(6.43,5.22,6.67,5.40,CORAL,2.5);c.line(6.90,5.22,6.67,5.40,CORAL,2.5)
     c.box(4.30,5.40,4.75,.44,CREAM);c.text('同一成分，来自两盒',4.40,5.43,4.55,.36,22,CORAL,True,True)
     c.text('① 圈出重复　→　② 核规格与已服情况　→　③ 未确认，不自行叠加',1.1,5.97,11.1,.30,17,INK,True,True)
 
@@ -154,7 +162,7 @@ def amr(c):
         yy=y+.20;lx=x0+width*lo/700;hx=x0+width*hi/700
         c.line(lx,yy,hx,yy,INK,2.2);c.line(lx,yy-.13,lx,yy+.13,INK,2.2);c.line(hx,yy-.13,hx,yy+.13,INK,2.2)
         c.oval(x0+width*value/700-.065,yy-.065,.13,.13,WHITE,INK)
-        c.text(str(value),x0+width*value/700+.12,y-.10,.86,.31,20,color,True)
+        c.text(str(value),x0+width*value/700+.12,y-.39,.86,.31,20,color,True)
         c.text(f'95%不确定性区间：{lo:g}—{hi:g}',x0,y+.52,5.55,.27,13)
     c.line(x0,5.35,x0+width,5.35,INK,1)
     c.text('条形与圆点＝估计值；带端帽的细线＝95%不确定性区间',6.39,5.94,5.90,.23,11)
@@ -163,8 +171,8 @@ def amr(c):
 def histamine(c):
     c.box(.85,2.13,5.63,3.98,MINT);c.box(6.83,2.13,5.63,3.98,LILAC)
     c.text('鼻部：参与过敏反应',1.13,2.34,4.99,.44,25,TEAL,True)
-    c.student(1.28,3.04,.62,'thinking');c.bubble('阿嚏！',2.61,3.11,1.48,.62,21)
-    c.oval(4.65,3.15,.65,.65,ORANGE);c.text('组胺',4.48,3.89,1.04,.32,16,INK,True,True)
+    c.student(1.28,3.04,.62,'neutral');c.bubble('阿嚏！',2.61,3.11,1.48,.62,21)
+    c.oval(4.65,3.15,.65,.65,ORANGE);c.text('组胺',5.36,3.28,.86,.32,16,INK,True,True)
     signal=c.arrow(4.78,3.92,.34,ORANGE);signal.rotation=90
     c.arrow(2.84,4.44,.39,TEAL);c.box(3.43,4.26,2.30,.63,TEAL);c.text('H1 受体',3.57,4.34,2.02,.45,23,WHITE,True,True)
     c.pill(1.30,4.43,.91,.30);c.text('抗组胺药',1.13,4.91,1.78,.31,15,CORAL,True)
