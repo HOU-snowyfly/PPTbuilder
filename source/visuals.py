@@ -102,16 +102,16 @@ def comic(c,d):
         c.text(['先有一个需求','再来一个建议','判断停在这里'][j],x+.24,5.70,3.32,.24,14,colors[j],True)
 
 def ingredient(c):
-    for x,fill,name,sub in [(1.02,MINT,'药盒 A','单方退热止痛药'),(7.13,LILAC,'药盒 B','复方感冒药')]:
+    for x,fill,name,sub in [(1.02,'F0F4FA','药盒 A','单方退热止痛药'),(7.13,'F0F4FA','药盒 B','复方感冒药')]:
         c.box(x,2.12,5.20,3.19,fill);c.text(name,x+.27,2.31,2.15,.42,25,INK,True);c.text(sub,x+.27,2.80,4.6,.31,17)
         c.box(x+.24,3.31,4.72,.58,CORAL);c.text('对乙酰氨基酚',x+.34,3.38,4.52,.42,24,WHITE,True,True)
-    c.text('只有这一种有效成分',1.30,4.34,4.6,.39,19,TEAL,True,True)
-    for text,y,color in [('马来酸氯苯那敏',4.04,TEAL),('盐酸伪麻黄碱',4.61,PURPLE)]:
+    c.text('只有这一种有效成分',1.30,4.34,4.6,.39,19,INK,True,True)
+    for text,y,color in [('马来酸氯苯那敏',4.04,INK),('盐酸伪麻黄碱',4.61,INK)]:
         c.box(7.37,y,4.72,.45,color);c.text(text,7.48,y+.04,4.50,.35,19,WHITE,True,True)
     c.line(5.98,3.60,6.43,3.60,CORAL,2.5);c.line(6.43,3.60,6.43,5.22,CORAL,2.5)
     c.line(7.37,3.60,6.90,3.60,CORAL,2.5);c.line(6.90,3.60,6.90,5.22,CORAL,2.5)
     c.line(6.43,5.22,6.67,5.40,CORAL,2.5);c.line(6.90,5.22,6.67,5.40,CORAL,2.5)
-    c.box(4.30,5.40,4.75,.44,CREAM);c.text('同一成分，来自两盒',4.40,5.43,4.55,.36,22,CORAL,True,True)
+    c.box(4.30,5.40,4.75,.44,'FFEEF0');c.text('同一成分，来自两盒',4.40,5.43,4.55,.36,22,CORAL,True,True)
     c.text('① 圈出重复　→　② 核规格与已服情况　→　③ 未确认，不自行叠加',1.1,5.97,11.1,.30,17,INK,True,True)
 
 def timeline(c,d):
@@ -147,26 +147,6 @@ def microbes(c):
     c.arrow(9.02,3.79,.40,PURPLE);c.oval(9.65,3.24,2.15,1.40,'DBF4ED',TEAL);c.oval(10.28,3.66,.61,.54,TEAL)
     c.text('宿主细胞',9.77,4.77,1.96,.30,17,TEAL,True,True)
     c.text('无细胞结构\n依赖宿主细胞复制',7.15,5.12,4.99,.66,21,INK,True)
-
-def amr(c):
-    c.text('2019年全球估计 · 2022年发表 · 单位：万人',.87,1.94,11.7,.34,16)
-    for y,fill,color,title,body in [(2.55,MINT,TEAL,'相关死亡 · 495万人','实际耐药感染\n与“没有这类感染”比较'),(4.13,LILAC,PURPLE,'归因死亡 · 127万人','感染仍发生\n但假设细菌对药物敏感')]:
-        c.box(.87,y,5.14,1.38,fill);c.text(title,1.13,y+.15,4.65,.39,23,color,True)
-        c.text(body,1.13,y+.65,4.65,.56,17)
-    x0,width=6.56,5.54
-    for tick in range(0,701,100):
-        x=x0+width*tick/700;c.line(x,2.73,x,5.36,GREY,.6);c.text(str(tick),x-.24,5.48,.48,.22,11,INK,False,True)
-    for y,name,value,lo,hi,color in [(3.08,'相关',495,362,657,TEAL),(4.47,'归因',127,91.1,171,PURPLE)]:
-        c.text(name,x0,y-.39,1.20,.28,15,color,True)
-        c.box(x0,y,width*value/700,.40,color)
-        yy=y+.20;lx=x0+width*lo/700;hx=x0+width*hi/700
-        c.line(lx,yy,hx,yy,INK,2.2);c.line(lx,yy-.13,lx,yy+.13,INK,2.2);c.line(hx,yy-.13,hx,yy+.13,INK,2.2)
-        c.oval(x0+width*value/700-.065,yy-.065,.13,.13,WHITE,INK)
-        c.text(str(value),x0+width*value/700+.12,y-.39,.86,.31,20,color,True)
-        c.text(f'95%不确定性区间：{lo:g}—{hi:g}',x0,y+.52,5.55,.27,13)
-    c.line(x0,5.35,x0+width,5.35,INK,1)
-    c.text('条形与圆点＝估计值；带端帽的细线＝95%不确定性区间',6.39,5.94,5.90,.23,11)
-    c.text('两个比较问题，不能相加',1.13,5.76,4.65,.36,23,CORAL,True)
 
 def histamine(c):
     c.box(.85,2.13,5.63,3.98,MINT);c.box(6.83,2.13,5.63,3.98,LILAC)
@@ -208,15 +188,109 @@ def quiz(c,d):
     c.badge('可多选' if d.get('question_mode')=='多选' else '单选',10.69,2.98,1.21,PURPLE)
     c.text('想一想，再举手',10.28,5.25,2.04,.25,13,INK,False,True)
 
+
+def principles(c,d):
+    for j,item in enumerate(d['items']):
+        x=.85+(j%2)*6.00;y=2.12+(j//2)*2.06
+        key,body=item.split('｜',1)
+        c.box(x,y,5.62,1.77,'EEF4FA' if j%2==0 else 'FFF0F1')
+        c.badge(f'0{j+1}',x+.25,y+.22,.56,INK)
+        c.text(key,x+1.01,y+.17,4.22,.48,29,INK,True)
+        c.text(body,x+.29,y+1.00,4.99,.48,23)
+
+def antibiotic_risk(c):
+    for x in [.85,6.83]:c.box(x,2.10,5.63,4.10,'F0F4FA')
+    c.text('不必要的抗生素处方',1.13,2.31,5.00,.44,24,INK,True)
+    c.text('美国门诊 · 2014—2015估计',1.13,2.86,5.00,.29,14)
+    c.text('至少',1.13,3.48,2.37,.31,20,CORAL,True)
+    c.text('28%',1.13,3.93,2.37,.83,48,CORAL,True)
+    for j in range(100):
+        x=3.80+(j%10)*.225;y=3.21+(j//10)*.225
+        c.box(x,y,.18,.18,CORAL if j<28 else 'D6E0ED')
+    c.text('每格＝1%处方；红色标出28%',1.13,5.63,5.00,.27,14,INK,True)
+    c.text('其余格子不表示都合理',1.13,5.96,5.00,.20,11)
+    c.text('艰难梭菌感染风险',7.11,2.31,5.00,.44,24,INK,True)
+    c.text('可引起腹泻、结肠炎',7.11,2.86,5.00,.28,14)
+    c.text('最高10倍',7.11,3.22,5.00,.61,38,CORAL,True)
+    c.text('抗生素使用期间及结束后1个月',7.11,3.91,5.00,.27,14)
+    x0,width=7.13,4.82
+    c.text('比较基准＝1',x0,4.24,4.82,.24,13)
+    c.box(x0,4.60,width/10,.22,INK)
+    c.text('1',x0+width/10+.13,4.55,.39,.30,16,INK,True)
+    c.text('最高风险示意',x0,4.97,4.82,.24,13)
+    c.box(x0,5.34,width,.22,CORAL)
+    c.line(x0,5.79,x0+width,5.79,INK,1)
+    for tick in [0,5,10]:
+        x=x0+width*tick/10;c.line(x,5.79,x,5.84,INK,1)
+        c.text(str(tick),x-.19,5.89,.38,.21,11,INK,False,True)
+
+def antibiotic_actions(c,d):
+    for j,item in enumerate(d['items']):
+        x=.85+j*4.04;c.box(x,2.13,3.80,3.93,'EEF4FA')
+        title,body=item.split('｜',1);c.badge(f'0{j+1}',x+.26,2.34,.60,INK)
+        if j==0:
+            c.medbox(x+.57,3.03,1.00,1.25,INK,'抗生素')
+            c.oval(x+1.85,3.10,1.03,1.03,'FFEEF0',CORAL)
+            c.text('需要？',x+1.95,3.45,.82,.29,17,CORAL,True,True)
+            c.line(x+2.66,3.93,x+3.12,4.34,CORAL,6)
+        elif j==1:
+            c.medbox(x+.47,3.07,1.01,1.29,INK,'室友剩药')
+            c.medbox(x+2.19,3.07,1.01,1.29,INK,'我的用药')
+            c.oval(x+1.50,3.43,.60,.60,'FFEEF0',CORAL)
+            c.line(x+1.61,3.55,x+1.99,3.93,CORAL,3)
+        else:
+            c.box(x+.67,3.02,2.30,1.54,WHITE,INK)
+            for k,t in enumerate(['剂量','间隔','疗程']):
+                yy=3.17+k*.43;c.text(t,x+1.28,yy,1.36,.28,16)
+                c.line(x+.83,yy+.13,x+.96,yy+.24,CORAL,2)
+                c.line(x+.96,yy+.24,x+1.16,yy+.01,CORAL,2)
+        c.text(title,x+.26,4.86,3.28,.39,24,INK,True)
+        c.text(body,x+.26,5.36,3.28,.56,17)
+
+def sleepy_class(c,d):
+    c.box(.85,2.12,5.63,3.97,'EEF4FA')
+    c.student(1.22,3.12,1.05,'sleepy');c.books(1.30,5.12,1.08)
+    c.bubble('鼻子舒服了，\n老师讲哪儿了？',3.31,2.81,2.75,1.10,21)
+    c.text('症状缓解 ≠ 人人都不困',1.13,5.62,5.00,.31,20,INK,True)
+    for j,item in enumerate(d['items']):
+        key,body=item.split('｜',1);y=2.12+j*1.38
+        c.box(6.83,y,5.63,1.22,'FFF0F1' if j==2 else 'EEF4FA')
+        c.badge(key,7.08,y+.20,1.25,CORAL if j==2 else INK)
+        c.text(body,7.08,y+.65,5.07,.41,21)
+
+def drinking_case(c,d):
+    for j,item in enumerate(d['items']):
+        x=.85+j*4.04;c.box(x,2.13,3.80,3.94,'FFF0F1' if j==1 else 'EEF4FA')
+        tag,text=item.split('｜',1);c.badge(tag,x+.24,2.34,1.10,INK)
+        c.bubble(text,x+.24,2.96,3.32,1.01,19)
+        c.student(x+.22,4.20,.70,'thinking' if j==2 else 'happy',j==1)
+        if j==0:c.medbox(x+2.18,4.34,1.03,1.27,INK,'抗过敏药')
+        elif j==1:
+            c.shape(MSO_SHAPE.TRAPEZOID,x+2.08,4.41,1.12,.71,WHITE,CORAL)
+            c.box(x+2.32,4.71,.64,.21,CORAL)
+            c.line(x+2.64,5.12,x+2.64,5.61,CORAL,3)
+            c.line(x+2.30,5.62,x+2.98,5.62,CORAL,3)
+        else:
+            c.oval(x+2.72,4.61,.39,.42,WHITE,INK)
+            c.box(x+2.13,4.43,.78,1.09,WHITE,INK)
+            c.line(x+2.25,5.19,x+2.80,5.19,INK,1.5)
+            c.box(x+3.16,4.49,.41,.83,INK)
+            c.text('查',x+3.19,4.73,.35,.25,12,WHITE,True,True)
+        c.text(['先记住药名','劝酒不是依据','白水＋核实'][j],x+.24,5.71,3.32,.25,15,INK,True)
+
 def draw_revised_slide(slide,d):
     c=Canvas(slide);n=d['n']
     if d['layout']=='quiz':quiz(c,d)
     elif n==4:allergy_scene(c)
-    elif n in [6,15]:comic(c,d)
+    elif n==3:principles(c,d)
+    elif n==6:comic(c,d)
     elif n==7:ingredient(c)
     elif n==8:timeline(c,d)
     elif n==11:microbes(c)
-    elif n==13:amr(c)
+    elif n==13:antibiotic_risk(c)
+    elif n==14:antibiotic_actions(c,d)
+    elif n==16:sleepy_class(c,d)
+    elif n==18:drinking_case(c,d)
     elif n==17:histamine(c)
     else:return False
     return True
