@@ -78,6 +78,7 @@ class Canvas:
         self.text(t,x+.18,y+.09,w-.36,h-.18,size,INK,True)
     def student(self,x,y,k=.8,mood='happy',roommate=False):
         # Anime portrait, replacing every former geometric cartoon avatar.
+        if mood=='neutral':return self.scene(1,0,x,y,1.65*k,2.10*k,window=(.25,0,.85,.97))
         return self.scene(0,2,x,y,1.65*k,2.10*k,window=(.29,.02,.92,.98))
 
     def books(self,x,y,w=1.2):
