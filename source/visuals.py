@@ -12,6 +12,7 @@ CORAL='EB5969'; MINT='E4F8EF'; LILAC='F1EAFF'; CREAM='FFF2D3'
 SKIN='FFD3B3'; WHITE='FFFFFF'; GREY='DDE5EF'
 FONT='Noto Sans CJK SC'
 ANIME_SHEET=Path(__file__).parent/'assets'/'anime'/'storyboard.png'
+EXTRA_SHEET=Path(__file__).parent/'assets'/'anime'/'unique_scenes.png'
 # Bounds omit the generated sheet gutters; cropping stays native to PowerPoint.
 ANIME_ROWS=[(0,304),(313,616),(625,1024)]
 ANIME_COLS=[(0,507),(514,1021),(1029,1536)]
@@ -57,7 +58,7 @@ class Canvas:
         self.box(x,y,w,h,WHITE,c);self.box(x+.05,y+.05,w-.10,.22,c)
         self.line(x+w*.5,y+.40,x+w*.5,y+.70,c,3);self.line(x+w*.35,y+.55,x+w*.65,y+.55,c,3)
         self.text(label,x+.05,y+h-.34,w-.10,.25,12,c,True,True)
-    def scene(self,row,col,x,y,w,h,window=None):
+    def scene(self,row,col,x,y,w,h,window=None,extra=False):
         left,right=ANIME_COLS[col];top,bottom=ANIME_ROWS[row]
         if window:
             a,b,z,q=window;sw=right-left;sh=bottom-top
@@ -67,19 +68,17 @@ class Canvas:
             cut=(sw-sh*ratio)/2;left+=cut;right-=cut
         else:
             cut=sh-sw/ratio;top+=cut*.10;bottom-=cut*.90
-        pic=self.s.shapes.add_picture(str(ANIME_SHEET),Inches(x),Inches(y),Inches(w),Inches(h))
+        pic=self.s.shapes.add_picture(str(EXTRA_SHEET if extra else ANIME_SHEET),Inches(x),Inches(y),Inches(w),Inches(h))
         pic.crop_left=left/1536;pic.crop_right=1-right/1536
         pic.crop_top=top/1024;pic.crop_bottom=1-bottom/1024
-        pic.name=f'ANIME_R{row+1}_C{col+1}'
+        pic.name=f"ANIME_{'EXTRA' if extra else 'BASE'}_R{row+1}_C{col+1}"
         pic._element.xpath('.//p:cNvPr')[0].set('descr','原创AI生成动漫情境；人物和事件为虚构教学示意')
         return pic
     def caption(self,t,x,y,w,h=1.00,size=20):
         self.box(x,y,w,h,'F1F5FA')
         self.text(t,x+.18,y+.09,w-.36,h-.18,size,INK,True)
     def student(self,x,y,k=.8,mood='happy',roommate=False):
-        # Anime portrait, replacing every former geometric cartoon avatar.
-        if mood=='neutral':return self.scene(1,0,x,y,1.65*k,2.10*k,window=(.25,0,.85,.97))
-        return self.scene(0,2,x,y,1.65*k,2.10*k,window=(.29,.02,.92,.98))
+        return self.scene(2,1,x,y,1.65*k,2.10*k,extra=True)
 
     def books(self,x,y,w=1.2):
         self.box(x,y,w,.20,TEAL);self.box(x+.08,y-.24,w,.20,PURPLE);self.box(x+.15,y-.48,w,.20,CORAL)
@@ -114,7 +113,7 @@ def timeline(c,d):
     for j,item in enumerate(d['items']):
         x=.82+j*4.03;c.box(x,2.12,3.79,3.96,'F1F5FA')
         if j<2:c.badge('18:00' if j==0 else '20:00',x+.22,2.29,1.35,INK)
-        c.scene(2 if j==0 else 0,0 if j<2 else 2,x+.20,2.84,3.39,2.12)
+        c.scene(0,j,x+.20,2.84,3.39,2.12,extra=True)
         c.text(item.split('｜',1)[-1],x+.22,5.15,3.35,.72,19,INK,True)
 
 def microbes(c):
@@ -161,15 +160,15 @@ def allergy_scene(c):
     for j,x in enumerate([.85,6.83]):
         c.scene(1,j,x,2.12,5.63,2.98)
         c.caption(['终于不用一直擦鼻涕！','鼻子好了，脑子想“下课”……'][j],x,5.25,5.63,.60,22)
-    c.text('鼻部过敏症状缓解',1.06,5.98,5.21,.26,16,TEAL,True)
-    c.text('部分药物影响脑内清醒信号，可能嗜睡',7.04,5.98,5.21,.26,14,PURPLE,True)
 
 def quiz(c,d):
     # All options share size, weight and spacing; no visual answer cue.
     for j,item in enumerate(d['items']):
         y=2.12+j*1.25;c.box(.84,y,9.03,1.03,'F4F6FA')
         c.badge(item[0],1.08,y+.33,.59,INK);c.text(item[2:],1.96,y+.17,7.57,.70,23,INK,False)
-    c.box(10.14,2.12,2.32,3.55,'F4F6FA');c.student(10.40,2.97,1.10,'thinking')
+    c.box(10.14,2.12,2.32,3.55,'F4F6FA')
+    row,col={2:(1,0),9:(1,1),19:(1,2),28:(2,0)}[d['n']]
+    c.scene(row,col,10.40,2.97,1.82,2.31,extra=True)
     c.badge('可多选' if d.get('question_mode')=='多选' else '单选',10.69,2.35,1.21,PURPLE)
 
 
@@ -184,29 +183,23 @@ def principles(c,d):
 
 def antibiotic_risk(c):
     for x in [.85,6.83]:c.box(x,2.10,5.63,4.10,'F0F4FA')
-    c.text('不必要的抗生素处方',1.13,2.31,5.00,.44,24,INK,True)
-    c.text('美国门诊 · 2014—2015估计',1.13,2.86,5.00,.29,14)
-    c.text('至少',1.13,3.48,2.37,.31,20,CORAL,True)
-    c.text('28%',1.13,3.93,2.37,.83,48,CORAL,True)
+    c.text('美国门诊抗生素处方',1.13,2.31,5.00,.44,24,INK,True)
+    c.text('至少',1.13,3.38,2.37,.36,22,CORAL,True)
+    c.text('28%',1.13,3.89,2.37,.86,48,CORAL,True)
     for j in range(100):
         x=3.80+(j%10)*.225;y=3.21+(j//10)*.225
         c.box(x,y,.18,.18,CORAL if j<28 else 'D6E0ED')
-    c.text('每格＝1%处方；红色标出28%',1.13,5.63,5.00,.27,14,INK,True)
-    c.text('其余格子不表示都合理',1.13,5.96,5.00,.20,11)
-    c.text('艰难梭菌感染风险',7.11,2.31,5.00,.44,24,INK,True)
-    c.text('可引起腹泻、结肠炎',7.11,2.86,5.00,.28,14)
-    c.text('最高10倍',7.11,3.22,5.00,.61,38,CORAL,True)
-    c.text('抗生素使用期间及结束后1个月',7.11,3.91,5.00,.27,14)
-    x0,width=7.13,4.82
-    c.text('比较基准＝1',x0,4.24,4.82,.24,13)
-    c.box(x0,4.60,width/10,.22,INK)
-    c.text('1',x0+width/10+.13,4.55,.39,.30,16,INK,True)
-    c.text('最高风险示意',x0,4.97,4.82,.24,13)
-    c.box(x0,5.34,width,.22,CORAL)
-    c.line(x0,5.79,x0+width,5.79,INK,1)
-    for tick in [0,5,10]:
-        x=x0+width*tick/10;c.line(x,5.79,x,5.84,INK,1)
-        c.text(str(tick),x-.19,5.89,.38,.21,11,INK,False,True)
+    c.text('被估计为不必要',1.13,5.55,5.00,.41,24,CORAL,True)
+    c.text('药物副作用导致的急诊',7.11,2.31,5.00,.44,24,INK,True)
+    c.text('5次中，约1次',7.11,3.03,5.00,.53,32,CORAL,True)
+    c.text('涉及抗生素反应',7.11,3.67,5.00,.38,23,INK,True)
+    for j in range(5):
+        x=7.14+j*.96;y=4.40;color=CORAL if j==0 else INK
+        c.box(x,y,.76,1.01,color)
+        c.box(x+.24,y+.15,.28,.08,WHITE);c.box(x+.34,y+.05,.08,.28,WHITE)
+        c.box(x+.30,y+.68,.16,.33,WHITE)
+        for k in range(2):c.box(x+.12+k*.36,y+.45,.12,.12,WHITE)
+    c.text('皮疹、腹泻，也可能严重过敏',7.11,5.66,5.00,.33,19,INK,True)
 
 def antibiotic_actions(c,d):
     for j,item in enumerate(d['items']):
@@ -231,17 +224,54 @@ def antibiotic_actions(c,d):
         c.text(title,x+.26,4.86,3.28,.39,24,INK,True)
         c.text(body,x+.26,5.36,3.28,.56,17)
 
-def sleepy_class(c,d):
-    c.scene(1,1,.85,2.12,5.63,3.15)
-    c.caption('鼻子舒服了，老师讲哪儿了？',.85,5.44,5.63,.61,22)
-    for j,item in enumerate(d['items']):
-        y=2.12+j*1.38;c.box(6.83,y,5.63,1.22,'FFF0F1' if j==2 else 'EEF4FA')
-        c.text(item.split('｜',1)[-1],7.08,y+.17,5.07,.88,22,INK,True)
-
 def drinking_case(c,d):
     for j,item in enumerate(d['items']):
         x=.82+j*4.03;c.scene(2,j,x,2.14,3.79,2.52)
         c.caption(item.split('｜',1)[-1],x,4.83,3.79,1.12,21)
+
+def agenda(c,d):
+    for j,item in enumerate(d['items']):
+        x=.85+j*3.03;c.box(x,2.16,2.83,3.93,'EEF4FA' if j%2==0 else 'FFF0F1')
+        c.badge(f'0{j+1}',x+.24,2.38,.63,INK)
+        if j==0:
+            c.oval(x+.59,3.21,1.17,1.17,WHITE,INK)
+            c.line(x+1.57,4.18,x+2.11,4.69,CORAL,5)
+            c.text('?',x+.82,3.40,.71,.70,35,CORAL,True,True)
+        elif j==1:c.medbox(x+.75,3.15,1.33,1.53,INK,'宿舍药箱')
+        elif j==2:
+            c.box(x+.59,3.13,1.65,1.59,WHITE,INK)
+            for k in range(3):
+                y=3.41+k*.40;c.line(x+.77,y,x+.91,y+.13,CORAL,2);c.line(x+.91,y+.13,x+1.13,y-.08,CORAL,2);c.line(x+1.33,y,x+2.04,y,INK,2)
+        else:
+            for k,t in enumerate(['A','B','C']):c.badge(t,x+.43+k*.66,3.66,.56,CORAL if k==1 else INK)
+        title,time=item.split('｜');c.text(title[3:],x+.20,5.07,2.43,.43,25,INK,True,True)
+        c.text(time,x+.20,5.63,2.43,.31,18,INK,False,True)
+
+def dose_rules(c,d):
+    for j,item in enumerate(d['items']):
+        x=.85+j*4.04;c.box(x,2.13,3.80,3.93,'EEF4FA' if j!=2 else 'FFF0F1')
+        title,body=item.split('｜');c.badge(f'0{j+1}',x+.26,2.35,.60,INK)
+        if j==0:
+            c.oval(x+.78,3.03,1.53,1.53,WHITE,INK)
+            c.line(x+1.55,3.31,x+1.55,3.79,INK,3);c.line(x+1.55,3.79,x+1.99,4.02,CORAL,3)
+            c.text('?',x+2.45,3.28,.58,.93,40,CORAL,True,True)
+        elif j==1:
+            c.box(x+.78,3.03,2.07,1.56,WHITE,INK)
+            for k,t in enumerate(['剂量','间隔','疗程']):c.text(t,x+1.02,3.19+k*.41,1.56,.29,18,INK,True)
+        else:
+            c.oval(x+.75,3.09,2.24,1.40,'FFEEF0',CORAL)
+            c.oval(x+.99,3.31,1.76,.96,WHITE,INK)
+            c.line(x+1.87,3.47,x+1.87,4.10,INK,2)
+            c.text('完整保护层',x+.71,4.62,2.38,.31,17,CORAL,True,True)
+        c.text(title,x+.26,5.10,3.28,.39,25,INK,True)
+        c.text(body,x+.26,5.59,3.28,.51,18)
+
+def finalcase(c,d):
+    c.scene(2,2,.85,2.13,5.63,3.97,extra=True)
+    for j,item in enumerate(d['items']):
+        y=2.13+j*1.38;c.box(6.83,y,5.63,1.22,'EEF4FA' if j!=2 else 'FFF0F1')
+        c.badge(f'0{j+1}',7.07,y+.38,.60,INK)
+        c.text(item,7.91,y+.16,4.27,.90,22,INK,True)
 
 def draw_revised_slide(slide,d):
     c=Canvas(slide);n=d['n']
@@ -254,7 +284,9 @@ def draw_revised_slide(slide,d):
     elif n==11:microbes(c)
     elif n==13:antibiotic_risk(c)
     elif n==14:antibiotic_actions(c,d)
-    elif n==16:sleepy_class(c,d)
+    elif n==5:agenda(c,d)
+    elif n==22:dose_rules(c,d)
+    elif n==27:finalcase(c,d)
     elif n==18:drinking_case(c,d)
     elif n==17:histamine(c)
     else:return False
