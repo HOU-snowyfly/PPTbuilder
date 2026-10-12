@@ -250,13 +250,80 @@ for d in SLIDES:
         txt(s,'蓝：敏感菌　红：耐药菌　｜　数量仅为示意，不代表实验比例',.93,5.94,11.5,.27,14,B)
     elif kind=='target':
         if d['n']==4:
-            pill(s,1.68,2.88,1.4,.6,0)
-            txt(s,'药物',1.17,4.18,2.6,.5,24,B,True,PP_ALIGN.CENTER);arrow(s,3.55,3.1,.66)
-            shape(s,MSO_SHAPE.HEXAGON,5.1,2.69,1.44,1.22,W,B,3)
-            txt(s,'受体 / 酶',4.5,4.18,2.8,.5,24,B,True,PP_ALIGN.CENTER);arrow(s,7.5,3.1,.66)
-            circle(s,9.19,2.77,1.12,R,R,0);txt(s,'信号',9.23,3.05,1.04,.4,20,W,True,PP_ALIGN.CENTER)
-            txt(s,'反应发生变化',8.4,4.18,3.15,.5,24,B,True,PP_ALIGN.CENTER)
-            txt(s,'蛋白质的结构，与功能有关。',1.1,5.28,11.1,.61,27,B,True,PP_ALIGN.CENTER)
+            # A paired comic scene: the same student, two effects of one dose.
+            # Accent colors are local to this illustration.
+            ink='203354'; teal='008C82'; purple='7952D5'
+            mint='E4F8EF'; lilac='F1EAFF'; gold='FFBE45'
+            peach='FFD3B3'; blush='F49B98'; white='FFFFFF'
+            for x,fill,accent,title in [
+                (.80,mint,teal,'鼻子舒服了'),
+                (6.80,lilac,purple,'上课却犯困？')
+            ]:
+                rect(s,x+.05,2.09,5.70,3.42,'E8EDF3','E8EDF3',0,True)
+                rect(s,x,2.03,5.70,3.42,fill,fill,0,True)
+                rect(s,x+.26,2.30,.08,.36,accent,accent,0,True)
+                txt(s,title,x+.48,2.20,4.96,.55,27,ink,True)
+
+            def scene_student(x,y,sleepy=False):
+                # Rounded hoodie, swept hair, rosy cheeks and expressive eyes.
+                shirt=gold if sleepy else '28C3AD'
+                rect(s,x-.13,y+1.01,1.72,1.20,shirt,shirt,0,True)
+                rect(s,x+.52,y+.84,.36,.35,peach,peach,0,True)
+                shape(s,MSO_SHAPE.OVAL,x+.06,y-.06,1.28,1.24,ink,ink,0)
+                shape(s,MSO_SHAPE.OVAL,x+.09,y+.11,1.23,1.06,peach,peach,0)
+                circle(s,x-.02,y+.54,.23,peach,peach,0)
+                circle(s,x+1.19,y+.54,.23,peach,peach,0)
+                # Offset dark ovals form an asymmetric fringe instead of a cap.
+                shape(s,MSO_SHAPE.OVAL,x+.01,y-.10,.77,.44,ink,ink,0)
+                shape(s,MSO_SHAPE.OVAL,x+.48,y-.04,.88,.33,ink,ink,0)
+                circle(s,x+.22,y+.71,.17,blush,blush,0)
+                circle(s,x+.94,y+.71,.17,blush,blush,0)
+                if sleepy:
+                    for ex in [.34,.85]:
+                        line(s,x+ex,y+.58,x+ex+.16,y+.64,ink,2.8)
+                        line(s,x+ex-.02,y+.45,x+ex+.16,y+.46,ink,1.5)
+                    shape(s,MSO_SHAPE.OVAL,x+.60,y+.80,.16,.20,ink,ink,0)
+                    txt(s,'Z',x+1.19,y-.14,.30,.38,22,purple,True)
+                    txt(s,'z',x+1.49,y-.36,.25,.32,16,purple,True)
+                else:
+                    for ex in [.34,.85]:
+                        line(s,x+ex,y+.60,x+ex+.08,y+.55,ink,2.6)
+                        line(s,x+ex+.08,y+.55,x+ex+.16,y+.60,ink,2.6)
+                    shape(s,MSO_SHAPE.OVAL,x+.51,y+.76,.38,.24,ink,ink,0)
+                    shape(s,MSO_SHAPE.OVAL,x+.49,y+.70,.42,.20,peach,peach,0)
+                line(s,x+.39,y+1.12,x+.68,y+1.38,white,2)
+                line(s,x+.97,y+1.12,x+.68,y+1.38,white,2)
+                line(s,x+.53,y+1.40,x+.53,y+1.67,white,1.5)
+                line(s,x+.83,y+1.40,x+.83,y+1.67,white,1.5)
+                if sleepy:
+                    # An open textbook and resting hand put the effect in class.
+                    rect(s,x-.18,y+1.85,1.80,.13,ink,ink,0,True)
+                    shape(s,MSO_SHAPE.PARALLELOGRAM,x+.06,y+1.60,.65,.27,white,ink,1)
+                    shape(s,MSO_SHAPE.PARALLELOGRAM,x+.72,y+1.60,.65,.27,white,ink,1)
+                    line(s,x+.72,y+1.61,x+.72,y+1.83,purple,1.5)
+                    circle(s,x+1.08,y+1.42,.31,peach,peach,0)
+                else:
+                    # A discarded tissue and a sparkle show relief, without a cure claim.
+                    shape(s,MSO_SHAPE.PARALLELOGRAM,x-.03,y+1.63,.60,.35,white,teal,1)
+                    circle(s,x+.85,y+1.57,.30,peach,peach,0)
+                    shape(s,MSO_SHAPE.STAR_4_POINT,x+1.46,y+.04,.27,.27,gold,gold,0)
+                    shape(s,MSO_SHAPE.STAR_4_POINT,x-.31,y+.43,.18,.18,teal,teal,0)
+
+            scene_student(1.35,3.00)
+            scene_student(7.35,3.00,True)
+            for x,accent,speech,tag,mechanism,result in [
+                (3.18,teal,'终于不用一直擦鼻涕了！','鼻部','组胺参与部分过敏反应','部分症状得到缓解'),
+                (9.18,purple,'鼻子好了，\n脑子想“下课”……','脑内','组胺信号参与维持清醒','部分药物入脑后可能致困')
+            ]:
+                rect(s,x,3.00,2.99,.87,white,white,0,True)
+                tail=shape(s,MSO_SHAPE.ISOSCELES_TRIANGLE,x-.13,3.37,.25,.24,white,white,0)
+                tail.rotation=270
+                txt(s,speech,x+.15,3.07,2.70,.71,17,ink,True)
+                badge(s,tag,x,4.02,.69,accent)
+                txt(s,mechanism,x,4.48,3.02,.32,14,ink)
+                txt(s,result,x,4.87,3.02,.36,15,accent,True)
+            rect(s,.85,5.70,11.65,.48,'FFF2D3','FFF2D3',0,True)
+            txt(s,'选药别只看症状：查嗜睡提示，说清上课与通勤需求',1.06,5.76,11.23,.34,20,ink,True,PP_ALIGN.CENTER)
         else:
             for j,(a,b) in enumerate([('外周组织','组胺信号 → 参与过敏症状'),('脑内','组胺信号 → 参与清醒状态')]):
                 x=.85+j*6.17;rect(s,x,2.11,5.73,3.7,W,B,1.5,True);badge(s,a,x+.24,2.39,1.53,B)
