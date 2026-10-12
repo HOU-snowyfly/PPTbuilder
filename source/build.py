@@ -13,7 +13,8 @@ from docx import Document
 from docx.shared import Inches as DI, Pt as DP, RGBColor as DC
 from docx.oxml import OxmlElement as DX
 from docx.oxml.ns import qn
-from content import SLIDES, SOURCES, PRESENTATION_ORDER
+from content import SLIDES, SOURCES, PRESENTATION_ORDER, QUIZ_ANSWERS
+from visuals import draw_revised_slide
 
 # Keep original content IDs for scene/photo lookup; show actual running page numbers.
 if sorted(PRESENTATION_ORDER) != sorted(d['n'] for d in SLIDES):
@@ -37,7 +38,7 @@ PHOTO_CREDITS=[
  ('hospital-02.jpg','Tasha Kostyuk','https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8','Unsplash License','https://unsplash.com/license'),
  ('clinic-01.jpg','Martha Dominguez de Gouveia','https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE','Unsplash License','https://unsplash.com/license'),
 ]
-PHOTO_BY_PAGE={1:['tablet-hand.jpg'],2:['tablet-hand.jpg'],5:['college-campus.jpg','pharmacy-01.jpg','pharmacy-02.jpg','hospital-02.jpg'],6:['pill-bottle.jpg'],9:['pill-bottle.jpg'],14:['pharmacy-03.jpg','pharmacy-02.jpg','pill-bottle.jpg'],15:['college-campus.jpg'],16:['evening.jpg'],18:['pill-bottle.jpg'],19:['pharmacy-03.jpg'],21:['pill-bottle.jpg'],22:['pill-bottle.jpg','pharmacy-01.jpg','tablet-hand.jpg'],23:['pharmacy-02.jpg'],24:['hospital-02.jpg'],25:['pharmacy-01.jpg'],27:['tablet-hand.jpg'],28:['pharmacy-01.jpg'],30:['clinic-01.jpg']}
+PHOTO_BY_PAGE={1: ['tablet-hand.jpg'], 5: ['college-campus.jpg', 'pharmacy-01.jpg', 'pharmacy-02.jpg', 'hospital-02.jpg'], 14: ['pharmacy-03.jpg', 'pharmacy-02.jpg', 'pill-bottle.jpg'], 16: ['evening.jpg'], 18: ['pill-bottle.jpg'], 21: ['pill-bottle.jpg'], 22: ['pill-bottle.jpg', 'pharmacy-01.jpg', 'tablet-hand.jpg'], 23: ['pharmacy-02.jpg'], 24: ['hospital-02.jpg'], 25: ['pharmacy-01.jpg'], 27: ['tablet-hand.jpg'], 30: ['clinic-01.jpg']}
 PHOTO_INDEX={item[0]:item for item in PHOTO_CREDITS}
 P=Presentation(); P.slide_width=Inches(13.333333); P.slide_height=Inches(7.5)
 P.core_properties.title='合理用药：给宿舍药箱上堂课'
@@ -150,6 +151,7 @@ def splititem(t):
 for d in SLIDES:
     kind=d['layout'];s=base(d,dark=kind in ['cover','closing'])
     it=d['items']
+    if draw_revised_slide(s,d):continue
     if kind=='cover':
         badge(s,'校园用药生存课',.7,.65,2.2,R)
         txt(s,'合理用药',.72,1.55,7,1.18,61,W,True)
@@ -165,14 +167,6 @@ for d in SLIDES:
         txt(s,'会看 · 会核 · 会问 · 会记',.9,6.18,7.5,.52,25,W,True)
         photo(s,'clinic-01.jpg',8.65,1.55,3.8,4.88)
         txt(s,'谢谢大家',10.65,6.68,2,.36,17,W)
-    elif kind=='quiz':
-        quiz_photo={2:'tablet-hand.jpg',9:'pill-bottle.jpg',19:'pharmacy-03.jpg',28:'pharmacy-01.jpg'}[d['n']]
-        for j,t in enumerate(it):
-            rect(s,.8,2.02+j*1.27,9.24,1.02,W,B,1.6,True)
-            circle(s,1.03,2.21+j*1.27,.62,B,B,0)
-            txt(s,t[0],1.03,2.24+j*1.27,.62,.52,23,W,True,PP_ALIGN.CENTER)
-            txt(s,t[2:],1.95,2.13+j*1.27,7.79,.79,23,B)
-        photo(s,quiz_photo,10.27,2.02,2.25,3.56)
     elif kind=='four':
         for j,t in enumerate(it):
             a,b=splititem(t);x=.8+(j%2)*6.04;y=1.98+(j//2)*2.05
@@ -193,58 +187,6 @@ for d in SLIDES:
             if not b and '：' in t:a,b=t.split('：',1)
             x=5.23;y=2.04+j*1.3
             txt(s,a,x,y,7.1,.47,22,R,True);txt(s,b if b else t,x,y+.49,7.1,.66,24,B)
-    elif kind=='labels':
-        for j in range(2):
-            x=.85+j*6.25
-            rect(s,x,2.1,5.55,2.56,W,B,2,True)
-            badge(s,'教学标签 '+('A' if j==0 else 'B'),x+.23,2.32,1.7,B)
-            txt(s,'有效成分',x+.26,2.98,4.9,.4,18,B)
-            rect(s,x+.22,3.55,5.1,.68,W,R,2,True)
-            txt(s,'对乙酰氨基酚',x+.4,3.64,4.7,.46,27,R,True)
-            if j==1:txt(s,'＋其他成分',x+.29,4.3,4.8,.27,14,B)
-        arrow(s,3.7,5.01,.5);arrow(s,9.45,5.01,.5)
-        txt(s,'成分会汇合，风险不能按药盒“分开算”',1.1,5.45,11,.6,25,B,True,PP_ALIGN.CENTER)
-    elif kind=='errorchart':
-        txt(s,'美国成人模拟任务｜n = 500｜2012年｜单位：%',.88,1.93,11.4,.45,18,B)
-        data=CategoryChartData();data.categories=['单一产品模拟超量','模拟联用重复超量'];data.add_series('占参与者比例',[23.8,45.6])
-        chart=s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED,Inches(.9),Inches(2.62),Inches(11.5),Inches(2.75),data).chart
-        chart.has_legend=False;chart.has_title=False
-        chart.font.name=FONT;chart.font.size=Pt(17);chart.font.color.rgb=color(B)
-        va=chart.value_axis;va.minimum_scale=0;va.maximum_scale=100;va.major_unit=20;va.tick_labels.number_format='0"%"';va.tick_labels.font.name=FONT;va.tick_labels.font.size=Pt(14);va.tick_labels.font.color.rgb=color(B);va.has_major_gridlines=False
-        va.format.line.color.rgb=color(B);va.major_tick_mark=XL_TICK_MARK.NONE;va.minor_tick_mark=XL_TICK_MARK.NONE
-        ca=chart.category_axis;ca.tick_labels.font.name=FONT;ca.tick_labels.font.size=Pt(18);ca.tick_labels.font.color.rgb=color(B);ca.format.line.fill.background();ca.major_tick_mark=XL_TICK_MARK.NONE
-        plot=chart.plots[0];plot.gap_width=70;plot.has_data_labels=True;dl=plot.data_labels;dl.position=XL_LABEL_POSITION.OUTSIDE_END;dl.number_format='0.0';dl.font.name=FONT;dl.font.size=Pt(23);dl.font.bold=True;dl.font.color.rgb=color(R)
-        for j,point in enumerate(chart.series[0].points):point.format.fill.solid();point.format.fill.fore_color.rgb=color(B if j==0 else R);point.format.line.fill.background()
-        txt(s,'研究判断的是潜在超量风险，不是实际中毒事件。',.95,5.67,11.6,.38,19,B)
-    elif kind=='amrchart':
-        txt(s,'2019年全球细菌耐药负担｜单位：万人｜2022年发表',.85,1.92,11.6,.45,18,B)
-        x0=3.2;span=8.7
-        for j,(name,val,lo,hi,c) in enumerate([('相关死亡',495,362,657,B),('归因死亡',127,91.1,171,R)]):
-            yy=2.83+j*1.34
-            txt(s,name,.86,yy-.03,2.13,.49,23,B,True)
-            rect(s,x0,yy,span*val/700,.5,c,c,0)
-            line(s,x0+span*lo/700,yy+.7,x0+span*hi/700,yy+.7,c,2)
-            for e in [lo,hi]:line(s,x0+span*e/700,yy+.6,x0+span*e/700,yy+.8,c,2)
-            txt(s,str(val),x0+span*val/700+.14,yy-.03,1.2,.48,23,c,True)
-            txt(s,f'区间：{lo:g}—{hi:g}',.87,yy+.56,2.24,.55,13,B)
-        line(s,x0,5.62,x0+span,5.62,B,1)
-        for tick in range(0,701,100):
-            x=x0+span*tick/700;line(s,x,5.62,x,5.7,B,1);txt(s,str(tick),x-.28,5.79,.56,.25,12,B,False,PP_ALIGN.CENTER)
-        txt(s,'细线表示95%不确定性区间',.9,6.06,5,.25,13,B)
-    elif kind=='microbes':
-        for j in range(2):rect(s,.83+j*6.16,2.04,5.78,3.9,W,B,1.4,True)
-        shape(s,MSO_SHAPE.ROUNDED_RECTANGLE,1.43,2.78,2.03,1.07,W,B,3)
-        for a in range(5):circle(s,1.68+a*.29,3.08,.12,R,R,0)
-        for a in range(5):line(s,1.5+a*.41,2.71,1.47+a*.41,2.45,B,2)
-        txt(s,'细菌',3.78,2.87,2,.56,30,B,True)
-        txt(s,'具有细胞结构\n细胞壁合成等可成为靶点',1.18,4.29,5.15,1.04,22,B)
-        cx,cy=8.35,3.15
-        for a in range(12):
-            th=a*math.pi/6;line(s,cx+.51*math.cos(th),cy+.51*math.sin(th),cx+.81*math.cos(th),cy+.81*math.sin(th),R,2)
-            circle(s,cx+.81*math.cos(th)-.05,cy+.81*math.sin(th)-.05,.1,R,R,0)
-        circle(s,cx-.51,cy-.51,1.02,W,R,3);pill(s,cx-.24,cy-.1,.48,.19)
-        txt(s,'病毒',9.66,2.87,2,.56,30,B,True)
-        txt(s,'没有细胞结构\n抗生素不治疗普通感冒病毒',7.31,4.29,5.08,1.04,22,B)
     elif kind=='selection':
         groups=[[(j%4,j//4,R if j in [3,10] else B) for j in range(12)],[(0,0,R),(2,1,R)],[(j%4,j//4,R) for j in range(12)]]
         for j,g in enumerate(groups):
@@ -255,88 +197,6 @@ for d in SLIDES:
             if j==1:txt(s,'敏感菌更易被抑制',x+.19,5.1,3.18,.42,17,B)
             if j<2:arrow(s,x+3.68,3.72,.35)
         txt(s,'蓝：敏感菌　红：耐药菌　｜　数量仅为示意，不代表实验比例',.93,5.94,11.5,.27,14,B)
-    elif kind=='target':
-        if d['n']==4:
-            # A paired comic scene: the same student, two effects of one dose.
-            # Accent colors are local to this illustration.
-            ink='203354'; teal='008C82'; purple='7952D5'
-            mint='E4F8EF'; lilac='F1EAFF'; gold='FFBE45'
-            peach='FFD3B3'; blush='F49B98'; white='FFFFFF'
-            for x,fill,accent,title in [
-                (.80,mint,teal,'鼻子舒服了'),
-                (6.80,lilac,purple,'上课却犯困？')
-            ]:
-                rect(s,x+.05,2.09,5.70,3.42,'E8EDF3','E8EDF3',0,True)
-                rect(s,x,2.03,5.70,3.42,fill,fill,0,True)
-                rect(s,x+.26,2.30,.08,.36,accent,accent,0,True)
-                txt(s,title,x+.48,2.20,4.96,.55,27,ink,True)
-
-            def scene_student(x,y,sleepy=False):
-                # Rounded hoodie, swept hair, rosy cheeks and expressive eyes.
-                shirt=gold if sleepy else '28C3AD'
-                rect(s,x-.13,y+1.01,1.72,1.20,shirt,shirt,0,True)
-                rect(s,x+.52,y+.84,.36,.35,peach,peach,0,True)
-                shape(s,MSO_SHAPE.OVAL,x+.06,y-.06,1.28,1.24,ink,ink,0)
-                shape(s,MSO_SHAPE.OVAL,x+.09,y+.11,1.23,1.06,peach,peach,0)
-                circle(s,x-.02,y+.54,.23,peach,peach,0)
-                circle(s,x+1.19,y+.54,.23,peach,peach,0)
-                # Offset dark ovals form an asymmetric fringe instead of a cap.
-                shape(s,MSO_SHAPE.OVAL,x+.01,y-.10,.77,.44,ink,ink,0)
-                shape(s,MSO_SHAPE.OVAL,x+.48,y-.04,.88,.33,ink,ink,0)
-                circle(s,x+.22,y+.71,.17,blush,blush,0)
-                circle(s,x+.94,y+.71,.17,blush,blush,0)
-                if sleepy:
-                    for ex in [.34,.85]:
-                        line(s,x+ex,y+.58,x+ex+.16,y+.64,ink,2.8)
-                        line(s,x+ex-.02,y+.45,x+ex+.16,y+.46,ink,1.5)
-                    shape(s,MSO_SHAPE.OVAL,x+.60,y+.80,.16,.20,ink,ink,0)
-                    txt(s,'Z',x+1.19,y-.14,.30,.38,22,purple,True)
-                    txt(s,'z',x+1.49,y-.36,.25,.32,16,purple,True)
-                else:
-                    for ex in [.34,.85]:
-                        line(s,x+ex,y+.60,x+ex+.08,y+.55,ink,2.6)
-                        line(s,x+ex+.08,y+.55,x+ex+.16,y+.60,ink,2.6)
-                    shape(s,MSO_SHAPE.OVAL,x+.51,y+.76,.38,.24,ink,ink,0)
-                    shape(s,MSO_SHAPE.OVAL,x+.49,y+.70,.42,.20,peach,peach,0)
-                line(s,x+.39,y+1.12,x+.68,y+1.38,white,2)
-                line(s,x+.97,y+1.12,x+.68,y+1.38,white,2)
-                line(s,x+.53,y+1.40,x+.53,y+1.67,white,1.5)
-                line(s,x+.83,y+1.40,x+.83,y+1.67,white,1.5)
-                if sleepy:
-                    # An open textbook and resting hand put the effect in class.
-                    rect(s,x-.18,y+1.85,1.80,.13,ink,ink,0,True)
-                    shape(s,MSO_SHAPE.PARALLELOGRAM,x+.06,y+1.60,.65,.27,white,ink,1)
-                    shape(s,MSO_SHAPE.PARALLELOGRAM,x+.72,y+1.60,.65,.27,white,ink,1)
-                    line(s,x+.72,y+1.61,x+.72,y+1.83,purple,1.5)
-                    circle(s,x+1.08,y+1.42,.31,peach,peach,0)
-                else:
-                    # A discarded tissue and a sparkle show relief, without a cure claim.
-                    shape(s,MSO_SHAPE.PARALLELOGRAM,x-.03,y+1.63,.60,.35,white,teal,1)
-                    circle(s,x+.85,y+1.57,.30,peach,peach,0)
-                    shape(s,MSO_SHAPE.STAR_4_POINT,x+1.46,y+.04,.27,.27,gold,gold,0)
-                    shape(s,MSO_SHAPE.STAR_4_POINT,x-.31,y+.43,.18,.18,teal,teal,0)
-
-            scene_student(1.35,3.00)
-            scene_student(7.35,3.00,True)
-            for x,accent,speech,tag,mechanism,result in [
-                (3.18,teal,'终于不用一直擦鼻涕了！','鼻部','组胺参与部分过敏反应','部分症状得到缓解'),
-                (9.18,purple,'鼻子好了，\n脑子想“下课”……','脑内','组胺信号参与维持清醒','部分药物入脑后可能致困')
-            ]:
-                rect(s,x,3.00,2.99,.87,white,white,0,True)
-                tail=shape(s,MSO_SHAPE.ISOSCELES_TRIANGLE,x-.13,3.37,.25,.24,white,white,0)
-                tail.rotation=270
-                txt(s,speech,x+.15,3.07,2.70,.71,17,ink,True)
-                badge(s,tag,x,4.02,.69,accent)
-                txt(s,mechanism,x,4.48,3.02,.32,14,ink)
-                txt(s,result,x,4.87,3.02,.36,15,accent,True)
-            rect(s,.85,5.70,11.65,.48,'FFF2D3','FFF2D3',0,True)
-            txt(s,'选药别只看症状：查嗜睡提示，说清上课与通勤需求',1.06,5.76,11.23,.34,20,ink,True,PP_ALIGN.CENTER)
-        else:
-            for j,(a,b) in enumerate([('外周组织','组胺信号 → 参与过敏症状'),('脑内','组胺信号 → 参与清醒状态')]):
-                x=.85+j*6.17;rect(s,x,2.11,5.73,3.7,W,B,1.5,True);badge(s,a,x+.24,2.39,1.53,B)
-                circle(s,x+.51,3.34,.65,R,R,0);arrow(s,x+1.57,3.45,.53);shape(s,MSO_SHAPE.HEXAGON,x+2.69,3.26,.91,.85,W,B,2)
-                txt(s,b,x+.26,4.51,5.19,.84,23,B)
-            txt(s,'部分抗组胺药进入脑内后，可能引起嗜睡。',1,5.97,11.5,.28,15,R,True)
     elif kind=='three':
         for j,t in enumerate(it):
             a,b=splititem(t);x=.82+j*4.2
@@ -346,7 +206,7 @@ for d in SLIDES:
             txt(s,a,x+.23,4.24,3.3,.46,22,B,True)
             txt(s,b,x+.23,4.86,3.28,.7,18,B)
     elif kind=='answer':
-        txt(s,'C' if d['n']==10 else 'B',.82,2.25,2.3,2.3,120,R,True,PP_ALIGN.CENTER)
+        txt(s,QUIZ_ANSWERS[9 if d['n']==10 else 28],.82,2.65,2.3,1.4,54,R,True,PP_ALIGN.CENTER)
         textrows(s,it,x=3.45,y=2.12,w=9.03,step=1.23,size=25)
     elif kind=='drinks':
         photo(s,'pill-bottle.jpg',1.04,2.17,4.65,3.58)
@@ -446,8 +306,8 @@ table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—5','00:
 doc.add_paragraph('甲主讲第1—16页，计划16分55秒；乙主讲第17—30页，计划18分05秒。第29页甲补充约15秒，第30页共同收尾，实际发言时间更接近。第16页末交接，不中途介绍新身份。')
 doc.add_paragraph('互动时，一人主持，另一人观察举手并翻页。不要求同学解释观点，不询问私人疾病史。参考资料页设为隐藏，课堂主线不会自动进入附页。')
 doc.add_heading('排练与控时',1)
-doc.add_paragraph('计时是演讲目标，不是自动播放。稿件约5700个汉字，另有停顿、读题、举手与同桌讨论，按自然讲解语速排练后校准。首次完整计时，优先把总时长控制在34—36分钟；不要为凑时间机械拖慢每句话。')
-doc.add_paragraph('到第5页末应约5分钟，第19页末约22分钟，第26页末约30分钟。超时1分钟：压缩第18页重复解释约30秒，并将第19页同桌讨论与点评合计缩短30秒。提前1分钟：按稿中停顿完整读图，补充解释第8页“模拟任务”和第13页“两种口径”，不要临时增加医学结论。')
+doc.add_paragraph('计时是演讲目标，不是自动播放。稿件文字量以本次生成的逐页讲稿为准，另有停顿、读题、举手与同桌讨论，按自然讲解语速排练后校准。首次完整计时，优先把总时长控制在34—36分钟；不要为凑时间机械拖慢每句话。')
+doc.add_paragraph('到第5页末应约5分钟，第19页末约22分钟，第26页末约30分钟。超时1分钟：压缩第18页重复解释约30秒，并将第19页同桌讨论与点评合计缩短30秒。提前1分钟：按稿中停顿完整读图，补充讨论第8页的信息缺口和第13页的两种比较假设，不要临时增加医学结论。')
 doc.add_paragraph('使用PowerPoint演示者视图查看备注。翻页采用手动点击，不设自动计时；答案页在投票后再显示。把封面的“同学甲/同学乙”替换成姓名。正式展示前，在实际电脑上检查字体和投影。')
 elapsed=0
 for d in SLIDES:
@@ -458,7 +318,7 @@ for d in SLIDES:
     if d['refs']:doc.add_paragraph('本页依据：'+d['refs'])
     elapsed+=d['sec']
 doc.add_heading('互动答案速查',1)
-table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择','3','4','B'],['重复成分','9','10','C'],['聚餐饮酒','19','19页口头＋20页提示','B'],['综合挑战','28','29','B']])
+table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择（单选）','3','4','B'],['重复成分（多选）','9','10','A＋C'],['聚餐饮酒（单选）','19','19页口头＋20页提示','C'],['综合挑战（多选）','28','29','A＋B']])
 doc.add_heading('参考资料',1);sourceparas(doc)
 doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 
@@ -467,7 +327,7 @@ guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容�
 guide.add_heading('整体方案',1)
 table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','18页主讲页加入9张不同的真实图库照片，按版面裁切后嵌入PPT；案例照片仅作场景示意。机制示意仍为可编辑形状。'],['图表','第8页为PowerPoint原生图表；第13页为可编辑矢量图，含不确定性区间。'],['互动','三次穿插投票＋一题综合挑战；A/B/C举手，不要求开放表达。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','蛋白质结构与功能、受体与信号、细菌和病毒、变异与自然选择。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
 guide.add_heading('四部分大纲',1)
-table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','6—19','重复成分；两篇研究图表；抗生素与耐药；备考产品；抗过敏嗜睡；酒精相互作用。'],['3 安全用药','20—26','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','27—30','复方感冒药＋聚餐情境；三选一；逐项揭晓；三句收尾。']])
+table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','6—19','重复成分；已服药信息核对；抗生素与耐药负担图；备考产品；抗过敏嗜睡；酒精相互作用。'],['3 安全用药','20—26','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','27—30','复方感冒药＋聚餐情境；多选建议；逐项揭晓；三句收尾。']])
 guide.add_heading('逐页文案与图片 / 图表说明',1)
 for d in SLIDES:
     guide.add_heading(f"{d['page']:02d}｜{d['title']}",2)
@@ -476,8 +336,8 @@ for d in SLIDES:
     guide.add_paragraph('视觉：'+d['visual']+('；另嵌入真实照片：'+'、'.join(PHOTO_BY_PAGE[d['n']]) if d['n'] in PHOTO_BY_PAGE else ''))
     guide.add_paragraph(f"分工与时间：{d['speaker']}，{d['sec']}秒。依据：{d['refs'] or '原创课堂组织 / 综合归纳'}。")
 guide.add_heading('数据口径与重绘规则',1)
-guide.add_paragraph('图1（第8页）：Wolf等，2012年，500名美国成人门诊参与者，模拟非处方对乙酰氨基酚用药任务。单一产品任务中23.8%安排出24小时超过4克的用量；联用任务中45.6%出现重复成分造成的潜在超量。4克为该研究的判定口径，不是本课给出的用药建议，也不能代替中国具体药品说明书的限量。两指标可能重叠，不相加；不能解释为实际中毒、肝损伤或中国大学生发生率。原始数值保留一位小数，条形轴从0至100%。')
-guide.add_paragraph('图2（第13页）：Antimicrobial Resistance Collaborators，Lancet 2022；数据年2019，全球细菌耐药负担模型估计。相关死亡495万人（95%不确定性区间362—657万人）；归因死亡127万人（91.1—171万人）。相关口径以无耐药感染为反事实，归因口径以药物敏感感染替代耐药感染为反事实。不是两个人群可以相加，也不表示这些死亡均由个人滥用抗生素造成。没有把2019年数据写成当前最新数据。')
+guide.add_paragraph('第8页为虚构宿舍用药案例，不再展示模拟超量研究比例。18点与20点只作故事时间线，不是给药间隔；核对具体药名、成分、规格与已服时间和用量。依据S2。')
+guide.add_paragraph('图表（第13页）：Antimicrobial Resistance Collaborators，Lancet 2022；数据年2019，全球细菌耐药负担模型估计。相关死亡495万人（95%不确定性区间362—657万人）；归因死亡127万人（91.1—171万人）。相关口径以无耐药感染为反事实，归因口径以药物敏感感染替代耐药感染为反事实。不是两个人群可以相加，也不表示这些死亡均由个人滥用抗生素造成。没有把2019年数据写成当前最新数据。')
 guide.add_paragraph('两组数据适合比较大小，因此采用条形图，而不是不适合当前数据结构的瀑布图。图表均按原文数据重绘并标注来源；没有直接截取论文整图。原始绘图数据另附CSV，便于更新。')
 guide.add_heading('教学边界与常见追问',1)
 for t in [
@@ -490,7 +350,7 @@ for t in [
  '课堂材料用于一般健康科普，不承担个体诊断和处方功能。案例均为虚构，无真实同学病史；急症行动以中国场景的120表述。']:
     guide.add_paragraph(t)
 guide.add_heading('评分点与排练检查',1)
-table(guide,['评分项','检查动作'],[['PPT制作 30','后排能读到主体文字；三色统一；图形无遮挡；不直接念参考文献。'],['语言表达 30','用自己的语气练熟讲稿；每页只围绕一个重点；甲乙交接自然；数据解释口径。'],['内容完整性 15','四部分完整；五类案例齐全；原则、机制和行动互相对应。'],['互动效果 15','先给阅读时间，再逐项举手；投票后揭晓；即使无人举手也继续解释。'],['时间把握 10','至少完整计时排练一次；检查5、22、30分钟节点；主线约35分钟。']])
+table(guide,['评分项','检查动作'],[['PPT制作 30','后排能读到主体文字；蓝红白主色配青绿、紫色、橙黄点缀；图形无遮挡；不直接念参考文献。'],['语言表达 30','用自己的语气练熟讲稿；每页只围绕一个重点；甲乙交接自然；数据解释口径。'],['内容完整性 15','四部分完整；五类案例齐全；原则、机制和行动互相对应。'],['互动效果 15','先给阅读时间，再逐项举手；投票后揭晓；即使无人举手也继续解释。'],['时间把握 10','至少完整计时排练一次；检查5、22、30分钟节点；主线约35分钟。']])
 guide.add_heading('完整参考资料',1);sourceparas(guide)
 guide.add_heading('真实照片来源与许可',1)
 guide.add_paragraph('以下均为真实图库照片，非生成图。图库照片仅说明场景；人物、药品、建筑与小苏虚构案例无关，也不代表苏州大学校园。Pexels 与 Unsplash 许可允许将照片用于演示文稿；保留摄影者与原图链接便于复核。')
@@ -502,13 +362,11 @@ guide.save(OUT/'合理用药_大纲与逐页设计说明.docx')
 
 with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newline='') as f:
     cw=csv.writer(f);cw.writerow(['页码','指标','数值','单位','下限','上限','口径','来源'])
-    cw.writerow([8,'单一产品模拟超量',23.8,'%', '', '', '美国成人n=500；潜在超量；非实际中毒率；可与下一指标重叠','S3'])
-    cw.writerow([8,'模拟联用重复超量',45.6,'%', '', '', '美国成人n=500；潜在超量；非实际中毒率；不可相加','S3'])
     cw.writerow([13,'与细菌耐药相关死亡',495,'万人',362,657,'2019全球估计；95%不确定性区间；与归因口径不可相加','S5'])
     cw.writerow([13,'归因于细菌耐药的死亡',127,'万人',91.1,171,'2019全球估计；95%不确定性区间','S5'])
 
 with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
-    f.write('合理用药：给宿舍药箱上堂课\n30页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、机制示意和图表可编辑；照片可在PPT中替换或裁切。第8页图表右键“编辑数据”；第13页数值改动时需同步调整图形长度和区间。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。校园故事及教学标签为原创示意；真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
+    f.write('合理用药：给宿舍药箱上堂课\n30页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、彩色漫画、机制示意和图表均可编辑；照片可在PPT中替换或裁切。第8页是信息核对案例；第13页数值改动时需同步修改source/visuals.py中的数值与区间。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。校园故事及教学标签为原创示意；真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
     for a,b,c in SOURCES:f.write(f'[{a}] {b}\n{c}\n\n')
     f.write('真实照片来源与许可：\n')
     for name,creator,url,license_name,license_url in PHOTO_CREDITS:
