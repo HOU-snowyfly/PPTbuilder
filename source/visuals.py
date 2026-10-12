@@ -165,6 +165,7 @@ def histamine(c):
     c.text('鼻部：参与过敏反应',1.13,2.34,4.99,.44,25,TEAL,True)
     c.student(1.28,3.04,.62,'thinking');c.bubble('阿嚏！',2.61,3.11,1.48,.62,21)
     c.oval(4.65,3.15,.65,.65,ORANGE);c.text('组胺',4.48,3.89,1.04,.32,16,INK,True,True)
+    signal=c.arrow(4.78,3.92,.34,ORANGE);signal.rotation=90
     c.arrow(2.84,4.44,.39,TEAL);c.box(3.43,4.26,2.30,.63,TEAL);c.text('H1 受体',3.57,4.34,2.02,.45,23,WHITE,True,True)
     c.pill(1.30,4.43,.91,.30);c.text('抗组胺药',1.13,4.91,1.78,.31,15,CORAL,True)
     c.text('影响受体作用 → 缓解部分症状',1.13,5.48,4.99,.40,19,TEAL,True)
@@ -192,10 +193,11 @@ def allergy_scene(c):
 def quiz(c,d):
     # All options share size, weight and spacing; no visual answer cue.
     for j,item in enumerate(d['items']):
-        y=2.12+j*1.25;c.box(.84,y,9.03,1.03,[MINT,LILAC,CREAM][j])
+        y=2.12+j*1.25;c.box(.84,y,9.03,1.03,'F4F6FA')
         c.badge(item[0],1.08,y+.33,.59,INK);c.text(item[2:],1.96,y+.17,7.57,.70,23,INK,False)
-    c.box(10.14,2.12,2.32,3.55,'F4F6FA');c.student(10.57,3.16,.86,'thinking')
-    c.text('你选哪一步？',10.28,2.40,2.04,.40,20,PURPLE,True,True)
+    c.box(10.14,2.12,2.32,3.55,'F4F6FA');c.student(10.57,3.54,.75,'thinking')
+    c.text('给建议点赞' if d.get('question_mode')=='多选' else '先选哪一步？',10.28,2.40,2.04,.40,20,PURPLE,True,True)
+    c.badge('可多选' if d.get('question_mode')=='多选' else '单选',10.69,2.98,1.21,PURPLE)
     c.text('想一想，再举手',10.28,5.25,2.04,.25,13,INK,False,True)
 
 def draw_revised_slide(slide,d):
