@@ -1,5 +1,6 @@
 """Editable, colorful classroom comics and diagrams for the revised slides."""
 import math
+from pathlib import Path
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
@@ -10,6 +11,10 @@ INK='203354'; TEAL='008C82'; PURPLE='7952D5'; ORANGE='FFBE45'
 CORAL='EB5969'; MINT='E4F8EF'; LILAC='F1EAFF'; CREAM='FFF2D3'
 SKIN='FFD3B3'; WHITE='FFFFFF'; GREY='DDE5EF'
 FONT='Noto Sans CJK SC'
+ANIME_SHEET=Path(__file__).parent/'assets'/'anime'/'storyboard.png'
+# Bounds omit the generated sheet gutters; cropping stays native to PowerPoint.
+ANIME_ROWS=[(0,304),(313,616),(625,1024)]
+ANIME_COLS=[(0,507),(514,1021),(1029,1536)]
 
 class Canvas:
     def __init__(self,slide):self.s=slide
@@ -52,30 +57,29 @@ class Canvas:
         self.box(x,y,w,h,WHITE,c);self.box(x+.05,y+.05,w-.10,.22,c)
         self.line(x+w*.5,y+.40,x+w*.5,y+.70,c,3);self.line(x+w*.35,y+.55,x+w*.65,y+.55,c,3)
         self.text(label,x+.05,y+h-.34,w-.10,.25,12,c,True,True)
+    def scene(self,row,col,x,y,w,h,window=None):
+        left,right=ANIME_COLS[col];top,bottom=ANIME_ROWS[row]
+        if window:
+            a,b,z,q=window;sw=right-left;sh=bottom-top
+            left,right=left+a*sw,left+z*sw;top,bottom=top+b*sh,top+q*sh
+        sw,sh=right-left,bottom-top;ratio=w/h
+        if sw/sh>ratio:
+            cut=(sw-sh*ratio)/2;left+=cut;right-=cut
+        else:
+            cut=sh-sw/ratio;top+=cut*.10;bottom-=cut*.90
+        pic=self.s.shapes.add_picture(str(ANIME_SHEET),Inches(x),Inches(y),Inches(w),Inches(h))
+        pic.crop_left=left/1536;pic.crop_right=1-right/1536
+        pic.crop_top=top/1024;pic.crop_bottom=1-bottom/1024
+        pic.name=f'ANIME_R{row+1}_C{col+1}'
+        pic._element.xpath('.//p:cNvPr')[0].set('descr','原创AI生成动漫情境；人物和事件为虚构教学示意')
+        return pic
+    def caption(self,t,x,y,w,h=1.00,size=20):
+        self.box(x,y,w,h,'F1F5FA')
+        self.text(t,x+.18,y+.09,w-.36,h-.18,size,INK,True)
     def student(self,x,y,k=.8,mood='happy',roommate=False):
-        # Same student and hoodie across scenes; the roommate wears purple.
-        def bx(a,b,w,h,c):return self.box(x+a*k,y+b*k,w*k,h*k,c)
-        def ov(a,b,w,h,c):return self.oval(x+a*k,y+b*k,w*k,h*k,c)
-        def ln(a,b,z,q,c=INK,lw=2):return self.line(x+a*k,y+b*k,x+z*k,y+q*k,c,lw)
-        shirt=PURPLE if roommate else ORANGE
-        bx(.04,1.04,1.53,1.03,shirt);bx(.62,.93,.32,.29,SKIN)
-        ov(.21,.05,1.16,1.15,INK);ov(.24,.18,1.10,1.04,SKIN)
-        ov(.10,.63,.22,.22,SKIN);ov(1.25,.63,.22,.22,SKIN)
-        ov(.17,.02,.76,.37,INK);ov(.64,.10,.76,.28,INK)
-        ov(.37,.79,.15,.13,'F49B98');ov(1.03,.79,.15,.13,'F49B98')
-        for a in [.44,.94]:
-            if mood=='sleepy':ln(a,.64,a+.15,.68,lw=2.6)
-            elif mood=='thinking':ov(a,.63,.085,.105,INK)
-            else:ln(a,.67,a+.07,.60,lw=2.5);ln(a+.07,.60,a+.14,.67,lw=2.5)
-        ln(.80,.65,.83,.80,lw=1.4);ln(.83,.80,.77,.80,lw=1.4)
-        if mood=='sleepy':ov(.73,.91,.15,.18,INK)
-        elif mood=='thinking':ln(.66,.98,.87,.98,lw=2)
-        else:ov(.64,.91,.33,.20,INK);ov(.62,.86,.37,.16,SKIN)
-        ln(.48,1.14,.79,1.39,WHITE);ln(1.07,1.14,.79,1.39,WHITE)
-        ln(.65,1.42,.65,1.66,WHITE,1.5);ln(.94,1.42,.94,1.66,WHITE,1.5)
-        ov(1.10,1.59,.26,.27,SKIN)
-        if mood=='sleepy':self.text('Z z',x+1.28*k,y-.11*k,.65*k,.38*k,19,PURPLE,True)
-        if mood=='thinking':self.text('?',x+1.33*k,y-.10*k,.38*k,.45*k,28,PURPLE,True)
+        # Anime portrait, replacing every former geometric cartoon avatar.
+        return self.scene(0,2,x,y,1.65*k,2.10*k,window=(.29,.02,.92,.98))
+
     def books(self,x,y,w=1.2):
         self.box(x,y,w,.20,TEAL);self.box(x+.08,y-.24,w,.20,PURPLE);self.box(x+.15,y-.48,w,.20,CORAL)
         for a,b in [(x+.09,y+.07),(x+.17,y-.17),(x+.24,y-.41)]:self.line(a,b,a+w-.28,b,WHITE,1.5)
@@ -87,19 +91,10 @@ class Canvas:
             self.line(x+a*k,y+b*k,x+z*k,y+q*k,PURPLE,2)
 
 def comic(c,d):
-    exam=d['n']==15;fills=[CREAM,LILAC,MINT];colors=[TEAL,PURPLE,TEAL]
     for j,item in enumerate(d['items']):
-        x=.80+j*4.04;c.box(x,2.10,3.80,3.98,fills[j]);c.badge(['01 情境','02 对话','03 悬念'][j],x+.23,2.29,1.20,colors[j])
-        sentence=item.split('｜',1)[1];c.bubble(sentence,x+.23,2.91,3.34,1.04,19)
-        c.student(x+.26,4.20,.70,'thinking' if j==2 else 'happy',j==1)
-        if j==2:
-            c.oval(x+2.05,4.42,.94,.94,WHITE,PURPLE);c.line(x+2.77,5.18,x+3.18,5.62,PURPLE,7)
-            c.text('适用？' if exam else '成分？',x+2.14,4.69,.77,.30,16,PURPLE,True,True)
-        elif exam and j==0:
-            c.box(x+2.05,4.28,1.18,1.29,INK);c.box(x+2.14,4.39,1.00,.99,WHITE)
-            c.text('快速\n提分？',x+2.20,4.56,.88,.62,19,CORAL,True,True);c.sparkle(x+3.27,4.15)
-        else:c.medbox(x+2.14,4.37,1.05,1.26,PURPLE if j==1 else TEAL,'处方？' if exam else ('药盒B' if j==1 else '药盒A'))
-        c.text(['先有一个需求','再来一个建议','判断停在这里'][j],x+.24,5.70,3.32,.24,14,colors[j],True)
+        x=.82+j*4.03
+        c.scene(0,j,x,2.14,3.79,2.52)
+        c.caption(item.split('｜',1)[-1],x,4.83,3.79,1.12,21)
 
 def ingredient(c):
     for x,fill,name,sub in [(1.02,'F0F4FA','药盒 A','单方退热止痛药'),(7.13,'F0F4FA','药盒 B','复方感冒药')]:
@@ -115,15 +110,11 @@ def ingredient(c):
     c.text('① 圈出重复　→　② 核规格与已服情况　→　③ 未确认，不自行叠加',1.1,5.97,11.1,.30,17,INK,True,True)
 
 def timeline(c,d):
-    for j,(time,label,color,fill) in enumerate([('18:00','已经服过',TEAL,MINT),('20:00','准备再加',CORAL,CREAM),('先补信息','核对后再决定',PURPLE,LILAC)]):
-        x=.82+j*4.03;c.box(x,2.18,3.79,3.80,fill);c.badge(time,x+.24,2.38,1.43,color)
-        if j<2:
-            c.student(x+.33,3.08,.75,'happy' if j==0 else 'thinking');c.medbox(x+2.08,3.50,1.08,1.40,color,'已服' if j==0 else '待核')
-        else:
-            c.box(x+.41,3.10,2.96,1.68,WHITE)
-            for k,t in enumerate(['药名＋成分','规格＋已服用量','时间＋其他用药']):c.text(t,x+.61,3.24+k*.45,2.55,.32,18,PURPLE,True)
-        c.text(label,x+.24,5.11,3.31,.39,23,color,True,True)
-        c.text(d['items'][j].split('｜',1)[1],x+.24,5.53,3.31,.34,14,INK,False,True)
+    for j,item in enumerate(d['items']):
+        x=.82+j*4.03;c.box(x,2.12,3.79,3.96,'F1F5FA')
+        if j<2:c.badge('18:00' if j==0 else '20:00',x+.22,2.29,1.35,INK)
+        c.scene(2 if j==0 else 0,0 if j<2 else 2,x+.20,2.84,3.39,2.12)
+        c.text(item.split('｜',1)[-1],x+.22,5.15,3.35,.72,19,INK,True)
 
 def microbes(c):
     c.box(.85,2.08,5.63,4.02,MINT);c.box(6.83,2.08,5.63,4.02,LILAC)
@@ -166,27 +157,19 @@ def histamine(c):
     c.text('清醒相关信号受影响 → 可能嗜睡',7.11,5.57,4.99,.34,17)
 
 def allergy_scene(c):
-    for x,fill,title in [(.85,MINT,'鼻子舒服了'),(6.83,LILAC,'上课却犯困？')]:
-        c.box(x,2.12,5.63,3.43,fill);c.text(title,x+.27,2.32,4.99,.43,27,INK,True)
-    c.student(1.24,3.05,.91);c.student(7.25,3.05,.91,'sleepy')
-    c.bubble('终于不用一直擦鼻涕！',3.10,3.05,2.96,.89,18)
-    c.bubble('鼻子好了，\n脑子想“下课”……',9.10,3.05,2.97,.89,18)
-    c.badge('鼻部',3.10,4.17,.74);c.text('组胺参与部分过敏反应',3.10,4.63,2.99,.30,14)
-    c.text('部分症状得到缓解',3.10,5.03,2.99,.31,17,TEAL,True)
-    c.badge('脑内',9.10,4.17,.74,PURPLE);c.text('组胺信号参与维持清醒',9.10,4.63,2.99,.30,14)
-    c.text('部分药物入脑后可能致困',9.10,5.03,2.99,.31,15,PURPLE,True)
-    c.books(7.40,4.80,.90)
-    c.box(.90,5.79,11.49,.40,CREAM);c.text('选药别只看症状：查嗜睡提示，说清上课与通勤需求',1.10,5.83,11.09,.30,20,INK,True,True)
+    for j,x in enumerate([.85,6.83]):
+        c.scene(1,j,x,2.12,5.63,2.98)
+        c.caption(['终于不用一直擦鼻涕！','鼻子好了，脑子想“下课”……'][j],x,5.25,5.63,.60,22)
+    c.text('鼻部过敏症状缓解',1.06,5.98,5.21,.26,16,TEAL,True)
+    c.text('部分药物影响脑内清醒信号，可能嗜睡',7.04,5.98,5.21,.26,14,PURPLE,True)
 
 def quiz(c,d):
     # All options share size, weight and spacing; no visual answer cue.
     for j,item in enumerate(d['items']):
         y=2.12+j*1.25;c.box(.84,y,9.03,1.03,'F4F6FA')
         c.badge(item[0],1.08,y+.33,.59,INK);c.text(item[2:],1.96,y+.17,7.57,.70,23,INK,False)
-    c.box(10.14,2.12,2.32,3.55,'F4F6FA');c.student(10.57,3.54,.75,'thinking')
-    c.text('给建议点赞' if d.get('question_mode')=='多选' else '先选哪一步？',10.28,2.40,2.04,.40,20,PURPLE,True,True)
-    c.badge('可多选' if d.get('question_mode')=='多选' else '单选',10.69,2.98,1.21,PURPLE)
-    c.text('想一想，再举手',10.28,5.25,2.04,.25,13,INK,False,True)
+    c.box(10.14,2.12,2.32,3.55,'F4F6FA');c.student(10.40,2.97,1.10,'thinking')
+    c.badge('可多选' if d.get('question_mode')=='多选' else '单选',10.69,2.35,1.21,PURPLE)
 
 
 def principles(c,d):
@@ -248,35 +231,16 @@ def antibiotic_actions(c,d):
         c.text(body,x+.26,5.36,3.28,.56,17)
 
 def sleepy_class(c,d):
-    c.box(.85,2.12,5.63,3.97,'EEF4FA')
-    c.student(1.22,3.12,1.05,'sleepy');c.books(1.30,5.12,1.08)
-    c.bubble('鼻子舒服了，\n老师讲哪儿了？',3.31,2.81,2.75,1.10,21)
-    c.text('症状缓解 ≠ 人人都不困',1.13,5.62,5.00,.31,20,INK,True)
+    c.scene(1,1,.85,2.12,5.63,3.15)
+    c.caption('鼻子舒服了，老师讲哪儿了？',.85,5.44,5.63,.61,22)
     for j,item in enumerate(d['items']):
-        key,body=item.split('｜',1);y=2.12+j*1.38
-        c.box(6.83,y,5.63,1.22,'FFF0F1' if j==2 else 'EEF4FA')
-        c.badge(key,7.08,y+.20,1.25,CORAL if j==2 else INK)
-        c.text(body,7.08,y+.65,5.07,.41,21)
+        y=2.12+j*1.38;c.box(6.83,y,5.63,1.22,'FFF0F1' if j==2 else 'EEF4FA')
+        c.text(item.split('｜',1)[-1],7.08,y+.17,5.07,.88,22,INK,True)
 
 def drinking_case(c,d):
     for j,item in enumerate(d['items']):
-        x=.85+j*4.04;c.box(x,2.13,3.80,3.94,'FFF0F1' if j==1 else 'EEF4FA')
-        tag,text=item.split('｜',1);c.badge(tag,x+.24,2.34,1.10,INK)
-        c.bubble(text,x+.24,2.96,3.32,1.01,19)
-        c.student(x+.22,4.20,.70,'thinking' if j==2 else 'happy',j==1)
-        if j==0:c.medbox(x+2.18,4.34,1.03,1.27,INK,'抗过敏药')
-        elif j==1:
-            c.shape(MSO_SHAPE.TRAPEZOID,x+2.08,4.41,1.12,.71,WHITE,CORAL)
-            c.box(x+2.32,4.71,.64,.21,CORAL)
-            c.line(x+2.64,5.12,x+2.64,5.61,CORAL,3)
-            c.line(x+2.30,5.62,x+2.98,5.62,CORAL,3)
-        else:
-            c.oval(x+2.72,4.61,.39,.42,WHITE,INK)
-            c.box(x+2.13,4.43,.78,1.09,WHITE,INK)
-            c.line(x+2.25,5.19,x+2.80,5.19,INK,1.5)
-            c.box(x+3.16,4.49,.41,.83,INK)
-            c.text('查',x+3.19,4.73,.35,.25,12,WHITE,True,True)
-        c.text(['先记住药名','劝酒不是依据','白水＋核实'][j],x+.24,5.71,3.32,.25,15,INK,True)
+        x=.82+j*4.03;c.scene(2,j,x,2.14,3.79,2.52)
+        c.caption(item.split('｜',1)[-1],x,4.83,3.79,1.12,21)
 
 def draw_revised_slide(slide,d):
     c=Canvas(slide);n=d['n']
