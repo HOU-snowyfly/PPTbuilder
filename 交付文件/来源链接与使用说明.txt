@@ -1,10 +1,10 @@
 合理用药：给宿舍药箱上堂课
-28页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。
+27页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。
 
 使用步骤：
 1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。
 2. 打开演示者视图，备注含逐页讲稿。
-3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第8页是信息核对案例；第12页数值改动时需同步修改source/visuals.py中的格子数量、风险倍数与说明。
+3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。
 4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。
 5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。
 6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。
@@ -44,8 +44,8 @@ https://www.nhs.uk/medicines/omeprazole/
 [S14] Simons FER, Simons KJ. H1 Antihistamines: Current Status and Future Directions. World Allergy Organ J. 2008;1:145–155.
 https://pmc.ncbi.nlm.nih.gov/articles/PMC3650962/
 
-[S15] CDC. About C. diff（2026更新；用药期间及结束后1个月感染风险最高10倍）
-https://www.cdc.gov/c-diff/about/
+[S15] CDC. Do antibiotics have side effects?（药物相关急诊约1/5来自抗生素反应）
+https://www.cdc.gov/antibiotic-use/media/pdfs/Do-Antibiotics-Have-Side-Effects-508.pdf
 
 [S16] Hersh AL et al. Unnecessary Antibiotic Prescribing in US Ambulatory Care Settings, 2010–2015. Clin Infect Dis. 2021;72:133–137.
 https://stacks.cdc.gov/view/cdc/120299/cdc_120299_DS1.pdf
@@ -59,24 +59,12 @@ pill-bottle.jpg｜Pexels photo 16051935
 原图：https://www.pexels.com/photo/16051935/
 许可：Pexels License https://www.pexels.com/license/
 
-college-campus.jpg｜George Pak
-原图：https://www.pexels.com/photo/7972512/
-许可：Pexels License https://www.pexels.com/license/
-
-evening.jpg｜LZ Jian
-原图：https://www.pexels.com/photo/black-lamp-beside-bed-5968800/
-许可：Pexels License https://www.pexels.com/license/
-
 pharmacy-01.jpg｜Árpád Czapp
 原图：https://unsplash.com/photos/a-room-filled-with-lots-of-shelves-filled-with-boxes-and-boxes-tvP6pCnq9iI
 许可：Unsplash License https://unsplash.com/license
 
 pharmacy-02.jpg｜National Cancer Institute
 原图：https://unsplash.com/photos/pharmacist-reaching-for-medication-on-shelf-byGTytEGjBo
-许可：Unsplash License https://unsplash.com/license
-
-pharmacy-03.jpg｜paws and prints
-原图：https://unsplash.com/photos/sQjHIOhiL0E
 许可：Unsplash License https://unsplash.com/license
 
 hospital-02.jpg｜Tasha Kostyuk
