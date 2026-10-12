@@ -13,7 +13,14 @@ from docx import Document
 from docx.shared import Inches as DI, Pt as DP, RGBColor as DC
 from docx.oxml import OxmlElement as DX
 from docx.oxml.ns import qn
-from content import SLIDES, SOURCES
+from content import SLIDES, SOURCES, PRESENTATION_ORDER
+
+# Keep original content IDs for scene/photo lookup; show actual running page numbers.
+if sorted(PRESENTATION_ORDER) != sorted(d['n'] for d in SLIDES):
+    raise ValueError('放映顺序必须包含每个主讲内容编号且仅出现一次')
+order_index={original:page for page,original in enumerate(PRESENTATION_ORDER,1)}
+SLIDES=sorted(SLIDES,key=lambda d:order_index[d['n']])
+for d in SLIDES:d['page']=order_index[d['n']]
 
 ROOT=Path(__file__).parent
 OUT=ROOT/'交付文件'; OUT.mkdir(exist_ok=True)
@@ -122,11 +129,11 @@ def base(d,dark=False):
         line(s,.65,6.39,12.68,6.39,B,.7)
         txt(s,d['takeaway'],.7,6.5,11.75,.47,17,R,True)
         txt(s,('来源：'+d['refs']+'  ·  完整链接见附页') if d['refs'] else '合理用药｜课堂科普',.7,7.12,10.5,.2,9,B)
-        txt(s,f"{d['n']:02d} / 30",11.75,7.06,.9,.28,11,B,False,PP_ALIGN.RIGHT)
+        txt(s,f"{d['page']:02d} / 30",11.75,7.06,.9,.28,11,B,False,PP_ALIGN.RIGHT)
     # speaker notes include full source URLs, not just numbers
     ss='\n'.join(f'[{sid}] {title}\n{url}' for sid,title,url in SOURCES if sid in d['refs'].split('; '))
     photo_notes='\n'.join(f"{PHOTO_INDEX[n][1]}｜{PHOTO_INDEX[n][2]}｜{PHOTO_INDEX[n][3]}" for n in PHOTO_BY_PAGE.get(d['n'],[]))
-    s.notes_slide.notes_text_frame.text=f"第{d['n']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n真实照片为图库场景示意，不呈现虚构案例中的真实人物、药品或事件。\n图片来源：\n{photo_notes}"
+    s.notes_slide.notes_text_frame.text=f"第{d['page']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n真实照片为图库场景示意，不呈现虚构案例中的真实人物、药品或事件。\n图片来源：\n{photo_notes}"
     return s
 def panel(s,x,y,w,h,title,body,num=None):
     rect(s,x,y,w,h,W,B,1.4,True)
@@ -444,14 +451,14 @@ doc.add_paragraph('到第5页末应约5分钟，第19页末约22分钟，第26�
 doc.add_paragraph('使用PowerPoint演示者视图查看备注。翻页采用手动点击，不设自动计时；答案页在投票后再显示。把封面的“同学甲/同学乙”替换成姓名。正式展示前，在实际电脑上检查字体和投影。')
 elapsed=0
 for d in SLIDES:
-    doc.add_heading(f"{d['n']:02d}｜{d['title']}",1)
+    doc.add_heading(f"{d['page']:02d}｜{d['title']}",1)
     doc.add_paragraph(f"主讲：{d['speaker']}　建议：{d['sec']}秒　累计：{mm(elapsed)}—{mm(elapsed+d['sec'])}")
     if d['cue']:doc.add_paragraph('舞台提示：'+d['cue'])
     for para in d['notes'].split('\n'):doc.add_paragraph(para)
     if d['refs']:doc.add_paragraph('本页依据：'+d['refs'])
     elapsed+=d['sec']
 doc.add_heading('互动答案速查',1)
-table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择','2','3','B'],['重复成分','9','10','C'],['聚餐饮酒','19','19页口头＋20页提示','B'],['综合挑战','28','29','B']])
+table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择','3','4','B'],['重复成分','9','10','C'],['聚餐饮酒','19','19页口头＋20页提示','B'],['综合挑战','28','29','B']])
 doc.add_heading('参考资料',1);sourceparas(doc)
 doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 
@@ -460,10 +467,10 @@ guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容�
 guide.add_heading('整体方案',1)
 table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','18页主讲页加入9张不同的真实图库照片，按版面裁切后嵌入PPT；案例照片仅作场景示意。机制示意仍为可编辑形状。'],['图表','第8页为PowerPoint原生图表；第13页为可编辑矢量图，含不确定性区间。'],['互动','三次穿插投票＋一题综合挑战；A/B/C举手，不要求开放表达。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','蛋白质结构与功能、受体与信号、细菌和病毒、变异与自然选择。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
 guide.add_heading('四部分大纲',1)
-table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场情境；合理用药四原则；靶点示意；四段路线。'],['2 宿舍误区','6—19','重复成分；两篇研究图表；抗生素与耐药；备考产品；抗过敏嗜睡；酒精相互作用。'],['3 安全用药','20—26','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','27—30','复方感冒药＋聚餐情境；三选一；逐项揭晓；三句收尾。']])
+table(guide,['部分','页码','要点'],[['1 基本原则','1—5','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','6—19','重复成分；两篇研究图表；抗生素与耐药；备考产品；抗过敏嗜睡；酒精相互作用。'],['3 安全用药','20—26','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','27—30','复方感冒药＋聚餐情境；三选一；逐项揭晓；三句收尾。']])
 guide.add_heading('逐页文案与图片 / 图表说明',1)
 for d in SLIDES:
-    guide.add_heading(f"{d['n']:02d}｜{d['title']}",2)
+    guide.add_heading(f"{d['page']:02d}｜{d['title']}",2)
     guide.add_paragraph('页面短文案：'+'；'.join(d['items']))
     guide.add_paragraph('底部关键句：'+d['takeaway'])
     guide.add_paragraph('视觉：'+d['visual']+('；另嵌入真实照片：'+'、'.join(PHOTO_BY_PAGE[d['n']]) if d['n'] in PHOTO_BY_PAGE else ''))
@@ -511,7 +518,7 @@ with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
 with (OUT/'真实照片来源.csv').open('w',encoding='utf-8-sig',newline='') as f:
     writer=csv.writer(f);writer.writerow(['文件','摄影者/来源','原图页面','使用许可','许可链接','使用页码'])
     for name,creator,url,license_name,license_url in PHOTO_CREDITS:
-        pages='、'.join(str(n) for n,photos in PHOTO_BY_PAGE.items() if name in photos)
+        pages='、'.join(str(order_index[n]) for n,photos in PHOTO_BY_PAGE.items() if name in photos)
         writer.writerow([name,creator,url,license_name,license_url,pages])
 
 (ROOT/'slides.json').write_text(json.dumps(SLIDES,ensure_ascii=False,indent=2),encoding='utf-8')
