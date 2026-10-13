@@ -106,7 +106,7 @@ for slide in SLIDES:
 for slide in SLIDES:
     if slide["layout"]=="quiz":
         slide["question_mode"]="多选" if slide["n"] in (9,28) else "单选"
-        slide["visual"]="等权选择卡与小苏动漫肖像；仅保留单选或多选标记，不重复添加提示小标题；不按答案区别格式。"
+        slide["visual"]="全宽等权选择卡，无人物配图；仅保留题型和判断标准，不按答案区别格式。"
 
 # 内容编号保持稳定；删页不会让图示、题目和素材查找错位。
 SLIDES=[slide for slide in SLIDES if slide["n"] not in (12,15,16)]
