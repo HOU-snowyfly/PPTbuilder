@@ -1,6 +1,7 @@
 """Adult editorial stories and image-free magazine layouts."""
 from pathlib import Path
 from pptx.util import Inches
+from pptx.enum.shapes import MSO_SHAPE
 from pptx.dml.color import RGBColor
 from visuals import Canvas, INK, WHITE, CORAL
 NAVY='153E75'; PALE='EEF4FA'; ROSE='FFF0F1'; PAPER='F7F6F3'
@@ -92,21 +93,23 @@ def allergy(c,d):
 def antibiotics(c,d):
     for j,item in enumerate(d['items']):
         title,body=item.split('｜');x=.85+j*4.04
-        c.box(x,2.16,3.80,3.92,ROSE if j==1 else PALE)
+        c.shape(MSO_SHAPE.RECTANGLE,x,2.16,3.80,3.92,ROSE if j==1 else PALE)
         c.text(title,x+.28,2.53,3.24,.87,29,NAVY,True)
-        c.text(body,x+.28,3.83,3.24,1.64,24,INK)
+        body=['感冒症状，\n不自动等于要用抗生素','相似症状，\n不代表同一病因','疗效或反应有疑问，\n及时咨询'][j]
+        c.text(body,x+.28,3.83,3.24,1.64,23,INK)
 
 def framework(c,d):
     for j,item in enumerate(d['items']):
         key,body=item.split('｜');x=.85+(j%2)*5.98;y=2.13+(j//2)*2.05
         c.box(x,y,5.63,1.80,ROSE if j%2 else PALE)
         c.text(key,x+.26,y+.30,1.03,.76,45,NAVY,True)
-        c.text(body,x+1.54,y+.30,3.81,1.20,25,INK)
+        body=['症状、说明书、\n就医信号','成分、用法、禁忌\n与相互作用','带齐信息，\n问医生或药师','药名、时间、\n用量与反应'][j]
+        c.text(body,x+1.54,y+.30,3.81,1.20,24,INK)
 
 def leaflet(c,d):
     for j,item in enumerate(d['items']):
         title,body=item.split('｜');x=.85+(j%2)*5.98;y=2.13+(j//2)*1.35
-        c.box(x,y,5.63,1.19,PALE)
+        c.shape(MSO_SHAPE.RECTANGLE,x,y,5.63,1.19,PALE)
         c.text(title,x+.26,y+.15,5.11,.35,23,NAVY,True)
         c.text(body,x+.26,y+.65,5.11,.37,23,INK)
 
@@ -137,7 +140,7 @@ def kit(c,d):
     for j,item in enumerate(d['items'][:2]):
         title,body=item.split('｜');x=.85+j*5.98;c.box(x,2.14,5.63,1.65,PALE)
         c.text(title,x+.27,2.39,5.09,.43,28,NAVY,True);c.text(body,x+.27,3.11,5.09,.42,23,INK)
-    c.box(.85,4.08,11.60,2.09,ROSE);c.text('留好用药记录',1.12,4.31,11.06,.42,28,NAVY,True)
+    c.shape(MSO_SHAPE.RECTANGLE,.85,4.08,11.60,2.09,ROSE);c.text('留好用药记录',1.12,4.31,11.06,.42,28,NAVY,True)
     for j,t in enumerate(['药名','时间','用量','反应']):
         x=1.12+j*2.81;c.text(t,x,5.05,2.29,.43,25,NAVY,True);c.line(x,5.79,x+2.26,5.79,NAVY,1.0)
 
@@ -151,7 +154,7 @@ def closing(c,d):
     c.text('药可以常备，',.86,1.20,11.62,.71,38,NAVY,True)
     c.text('判断不能省略。',.86,2.12,11.62,.99,57,NAVY,True)
     for j,item in enumerate(d['items']):
-        y=3.58+j*.91;c.box(.85,y,11.60,.76,ROSE if j==1 else PALE)
+        y=3.58+j*.91;c.shape(MSO_SHAPE.RECTANGLE,.85,y,11.60,.76,ROSE if j==1 else PALE)
         c.text(['看','核·记','问'][j],1.03,y+.18,1.20,.40,22,CORAL,True,True);c.text(item,2.56,y+.17,9.49,.43,26,NAVY,True)
     c.text('谢谢大家',9.57,6.84,2.86,.48,25,NAVY,True,True)
 
