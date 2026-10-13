@@ -1,15 +1,15 @@
 合理用药：给宿舍药箱上堂课
-27页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。
+27页主讲＋3页隐藏文献附页＋1页隐藏动漫素材附页，35分钟含互动。
 
 使用步骤：
 1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。
 2. 打开演示者视图，备注含逐页讲稿。
-3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。
+3. 主讲文字、漫画对白、机制示意和图表可编辑；封面与第17—27页布局由source/late_visuals.py维护；动漫画面可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。
 4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。
 5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。
 6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。
 
-研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。
+研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。本版主讲没有图库照片；26幅独立动漫画面各出现一次。逐页素材与分镜编号见图片素材与页码.csv。
 
 [S1] 国家卫生健康委等（2020）《关于加强医疗机构药事管理促进合理用药的意见》
 https://www.nhc.gov.cn/yzygj/c100068/202002/fdb7240014db4d49827ca25bbb41b177.shtml
@@ -50,29 +50,9 @@ https://www.cdc.gov/antibiotic-use/media/pdfs/Do-Antibiotics-Have-Side-Effects-5
 [S16] Hersh AL et al. Unnecessary Antibiotic Prescribing in US Ambulatory Care Settings, 2010–2015. Clin Infect Dis. 2021;72:133–137.
 https://stacks.cdc.gov/view/cdc/120299/cdc_120299_DS1.pdf
 
-真实照片来源与许可：
-tablet-hand.jpg｜Towfiqu barbhuiya
-原图：https://www.pexels.com/photo/hand-holding-a-pill-15703464/
-许可：Pexels License https://www.pexels.com/license/
-
-pill-bottle.jpg｜Pexels photo 16051935
-原图：https://www.pexels.com/photo/16051935/
-许可：Pexels License https://www.pexels.com/license/
-
-pharmacy-01.jpg｜Árpád Czapp
-原图：https://unsplash.com/photos/a-room-filled-with-lots-of-shelves-filled-with-boxes-and-boxes-tvP6pCnq9iI
-许可：Unsplash License https://unsplash.com/license
-
-pharmacy-02.jpg｜National Cancer Institute
-原图：https://unsplash.com/photos/pharmacist-reaching-for-medication-on-shelf-byGTytEGjBo
-许可：Unsplash License https://unsplash.com/license
-
-hospital-02.jpg｜Tasha Kostyuk
-原图：https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8
-许可：Unsplash License https://unsplash.com/license
-
-clinic-01.jpg｜Martha Dominguez de Gouveia
-原图：https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE
-许可：Unsplash License https://unsplash.com/license
-
-原始资料：2026-10-09；新增CDC数据核对与版面修订：2026-10-12
+原创动漫素材：
+cover_rational.png｜封面：一起核对药盒与说明书｜2026-10-13
+storyboard.png｜宿舍、课堂与聚餐分镜｜2026-10-12
+unique_scenes.png｜核药时间线、四道题与组胺肖像｜2026-10-12
+actions_storyboard.png｜查、核、问、求助、记录与综合案例｜2026-10-13
+原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13
