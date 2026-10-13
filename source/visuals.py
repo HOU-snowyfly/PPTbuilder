@@ -257,8 +257,10 @@ def finalcase(c,d):
         c.text(item,7.91,y+.16,4.27,.90,22,INK,True)
 
 def draw_revised_slide(slide,d):
-    from medical_visuals import histamine_medical
-    if histamine_medical(slide,d):return True
+    from medical_visuals import histamine_medical,microbes_medical
+    if histamine_medical(slide,d) or microbes_medical(slide,d):return True
+    from editorial_visuals import draw_editorial_slide
+    if draw_editorial_slide(slide,d):return True
     from late_visuals import draw_late_slide
     if draw_late_slide(slide,d):return True
     c=Canvas(slide);n=d['n']
