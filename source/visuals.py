@@ -274,6 +274,8 @@ def finalcase(c,d):
         c.text(item,7.91,y+.16,4.27,.90,22,INK,True)
 
 def draw_revised_slide(slide,d):
+    from late_visuals import draw_late_slide
+    if draw_late_slide(slide,d):return True
     c=Canvas(slide);n=d['n']
     if d['layout']=='quiz':quiz(c,d)
     elif n==4:allergy_scene(c)
