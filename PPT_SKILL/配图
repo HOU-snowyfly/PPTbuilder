@@ -1,0 +1,227 @@
+# 配图
+
+## 核心摘要：下次调用先读这里
+
+适用于不同主题的PPT；合理用药仅作为已验证的风格与流程示例。按当前任务读取对应章节，不全量读取全部规范。
+
+1. **先回答“这一页为什么需要这张图”。** 图片必须承载情境、结构、比较或行动线索；只为填空、装饰或重复文字的图片不生成。
+2. 情景图延续最新版的**成熟出版物编辑插画**：自然人物比例、小而自然的眼睛、克制表情、细线轮廓、可见笔触、哑光色块与适度纸感。不能只写“动漫、精美、高级”后任由模型发挥。
+3. 实际附上最新版素材作为画风参考；只继承绘画语言，配色随当前PPT主题协调。同一故事保持角色一致，不同案例更换人物、动作、场景与机位，不重复使用具体画面。
+4. 科学知识使用独立渲染、按可靠资料核对的专业插图；代码负责排版、标签及有依据的图表，不拼出貌似精确的器官或分子模型。
+5. 先生成无教学文字的图，再放入PPT。对白、结论、时间、受体标签与数据保留可编辑；图中文字不能成为知识依据。
+6. **提示词不等于验收。** 必须检查实际图文对应、角色与道具、专业结构、素材唯一性，以及放进PPT后的阅读效果。不通过则局部修正、重绘或替换。
+
+本文件是《图片》的生成执行补充；页面逻辑见《逻辑》，文案事实见《文本内容》，版式见《文本显示形式》，注解边界见《小问题补丁》。当前交付政策优先：源图、生成记录与核验资料留在源码或work/，交付文件夹只留PPTX和讲稿DOCX，不额外交付PNG、PDF、ZIP或预览。
+
+## 1. 判断是否配图：按页面任务选择
+
+| 页面任务 | 优先表达 | 图片的准入条件 |
+| --- | --- | --- |
+| 结论、原则、行动清单、回顾 | 灵活杂志排版、柔和底色文字块、编号与留白 | 图片能补充必要信息；不能用泛化人物重复结论 |
+| 衔接、投票、选择题 | 清楚的引导句、等权选项、层次与节奏 | 题目确需视觉线索时才配图，不靠表情暗示正确答案 |
+| 情景描述 | 成熟编辑插画；重点故事可分镜，轻量情景可单幅 | 图中动作和道具能说明具体处境或决策冲突 |
+| 专业知识、作用机制 | 可靠图源或独立专业科学插图，配可编辑标签 | 画面确实解释结构、位置、关系或路径，并能逐项核验 |
+| 数据比较、风险量级 | 可编辑图表、比例图、计数图标 | 有数据依据、口径和分母；不拿生成图模拟真实数据 |
+
+不规定每页必须有图，也不把“四个重点故事”“七个情景页”等本项目数量变成通用配额。依据主线决定哪些故事需要完整展开，其他页通过排版获得和谐。
+
+无图页也要生动：用明确的主结论、大小层级、与主题协调的浅底色、变化适度的文字容器和充足留白。容器可以变化，但必须有一致的对齐与间距；不靠不断加人像、装饰图标和颜色制造热闹。
+
+## 2. 生成前的图文对齐卡
+
+先完成以下短卡，再填写提示词。卡片属于内部制作资料，不作为PPT上的小标题。
+
+- **本页要点**：观众必须理解的一句话；图要让哪一点更清楚？
+- **图的职责**：呈现情景、揭示关系、比较差异还是提示行动？删除它会损失什么？
+- **可见证据**：要点落实为哪些人物动作、物品状态、结构或位置？不得只画“思考的人”。
+- **信息边界**：已给出的事实、尚待讨论的信息，以及不得提前揭晓的答案。
+- **角色与场景**：与前页是否为同一故事？必须延续什么，必须改变什么？
+- **构图与使用尺寸**：单幅或分镜、机位、画幅比例、文字位置，以及不能裁掉的关键部位。
+- **配色与参考**：本套PPT的主要颜色、背景，实际附给生图工具的参考文件。
+- **核验重点**：最可能出错的手部、道具、结构、因果、数量或角色连续性。
+
+写成“谁，在什么场景，做什么，针对什么物品，为什么这能支撑本页要点”。不要把整页长文直接塞入提示词，也不要让模型自行推测关键事实。
+
+通用工作方式：输入主题后，先内部确定逐页主线与图的职责，再分配图片，不先批量生图后倒推内容。只有缺失信息会改变事实、机制或关键风格时才提问；常规机位、留白和局部配色自行选择。
+
+## 3. 参考素材与画风约束
+
+### 3.1 使用真实参考，而非只提及文件名
+
+已被用户认可的最新版参考，以仓库根目录为基准：
+
+- `source/assets/editorial/key_stories.png`：重点故事的连续动作、人物比例、线条、笔触和场景层次。
+- `source/assets/editorial/support_scenes.png`：轻量情景、手部与物件表达、咨询场景，以及同一角色换机位的方式；右下空白格不是可用图片。
+- 画面分配与角色连续性见 `source/assets/editorial/NOTES.md` 的对应章节。
+
+使用前查看实际图片，再通过生图工具支持的参考图参数传入。只在提示词中写本地路径，不能保证工具看到了图片。若工具不支持参考图输入，使用下方完整画风描述，并说明只能做风格近似；不声称逐笔复刻。不要采用旧版幼态动漫素材或已淘汰的摄影式初稿作默认参考。
+
+参考用途必须明确：**新案例只参考画风；同一故事可同时参考角色外貌。** 禁止把参考图改色、镜像、裁切或换背景后冒充新情节。
+
+### 3.2 固定绘画语言，灵活配色
+
+- 画面是有清楚手绘痕迹的成熟出版物编辑插画：细而明确的轮廓、适量排线阴影、哑光水粉色面、节制的纸张纹理。
+- 人物年龄与文本相符。成年角色自然成人比例，眼睛与五官克制，姿态可信，情绪通过动作表达；儿童题材也不自动采用大头幼态比例。
+- 色彩鲜明但协调：从PPT主题色中选主要强调色，配中性色；背景降低饱和度，关键人物和物品形成视觉重点。自然场景可以有其他颜色，不机械限制所有像素只有两色。
+- 酒红、青绿、米色、深蓝是合理用药版本的参考配色，不是所有主题的固定调色板。
+- 背景给出必要地点线索，但不能抢过动作与关键道具。不要每个场景都使用相同宿舍、暖黄灯、橙色卫衣、手机和托腮姿势。
+- 不采用幼态大眼、Q版大头、夸张发型、表情包、闪亮塑料皮肤、3D玩偶或泛化卡通。也不退回摄影式皮肤、镜头虚化和电影截图；“专业”不等于“照片”。
+
+### 3.3 角色与分镜去重
+
+建立简短角色表：故事ID、年龄身份、发型、脸部特征、服装、场景、已用动作与机位。不同案例尽量在多项特征上形成差异；同一连续故事不得无故换人、换衣、换物品。
+
+重点故事可用两至三幅，也可按叙事需要调整；不固定每个情景都为三格。每一幅必须推进新信息：具体处境→互动或行动→待判断的问题或已发生的结果。题目前保留合理悬念，答案页才能揭晓结果。
+
+轻量场景优先单幅动作或物件视角，不强行增加完整人物。机位可采用中景互动、俯视道具、肩后视角、侧面动作等；变化须帮助观众理解，不以无关细节炫技。
+
+逐格使用登记：具体画面只出现一次。角色一致、必要图例一致与统计计数图标重复是合理的一致性；同一故事画面跨页再用，或用裁切、镜像、滤镜掩盖重复，均不合格。
+
+## 4. 情景插画提示词：可直接填充使用
+
+以下英文模板用于生图，中文用于规划和核验。工具支持中文时可等义转写；关键是具体约束，不是语言本身。替换全部花括号，不带未填写变量提交；不需要的字段删除。先画图，后在PPT中加可编辑文字。
+
+### 4.1 单幅或轻量场景
+
+```text
+Create one mature, hand-drawn editorial illustration for a presentation about {topic}, intended for {audience}.
+Use the attached approved reference ONLY for its drawing language: fine confident ink contours, restrained hatched shadows, matte gouache color planes, subtle paper texture, natural human proportions, small natural eyes and understated expressions. It must read as a polished illustrated magazine scene, not a photograph or a cute cartoon.
+Reference identity rule: {style only; create new characters / also preserve the specified character from the ongoing story}.
+
+This image must visibly support: {one page takeaway}.
+Depict exactly this situation: {who, where, visible action, interaction and key object states}.
+Required visual evidence: {the few details essential to understanding the text}.
+Do not invent or reveal: {unsupported facts, brands, doses, outcomes or the quiz answer}.
+Character design: {age, identity, hair, clothing and distinguishing features}.
+Composition: {camera angle, shot distance, focal point, placement and aspect ratio}.
+Keep {essential heads, hands, objects or structures} fully readable inside the crop-safe area. Background details should establish {setting} without competing with the main action.
+Coordinate colors with {presentation palette}; use clear contrast at the focal point and quieter supporting colors. Preserve the reference's linework and matte texture, not its exact palette or scene.
+Text will be added separately in PowerPoint at {outside the image / specified quiet area}. Do not generate captions, dialogue, titles, labels, logos or watermarks. Printed props may use abstract short marks, never readable teaching content or fabricated product names.
+Avoid oversized anime eyes, chibi proportions, childish caricature, glossy 3D rendering, photographic skin or camera bokeh. Do not copy any existing frame, stock thinking pose or repeated scene composition.
+```
+
+若无人场景，把角色字段改为手部、物品和动作，删除眼睛等无关要求。若需要真实标识、文字或精确刻度，另行使用可靠素材或可编辑对象，不指望生成图精确写字。
+
+### 4.2 重点故事与连续分镜
+
+先确定每格用途，再以4.1的画风与禁用约束为基础，加入以下段落：
+
+```text
+Create {N} distinct storyboard panels in {a specified layout}, with simple even gutters and no panel titles or numbers. Each panel must be independently usable at {target crop/aspect ratio}; do not let objects, hands or characters cross gutters.
+Keep the same protagonist throughout: {identity and stable appearance}. Maintain continuity of {clothing, key props and chronology}.
+Panel 1: {specific situation, visible action, key objects, camera angle}.
+Panel 2: {new interaction or decision pressure, changed action, key objects, different useful camera angle}.
+Panel 3, only if needed: {new information, unresolved question or established outcome, distinct composition}.
+Every panel advances the story; do not repeat a portrait with slight expression changes. Do not imply an outcome that the accompanying text has not established. At a quiz setup, keep plausible choices open and do not reveal the intended answer through a celebratory or warning pose.
+```
+
+独立生成每格更便于控制画幅和修改。需要连续角色时可用联系图，但必须检查每格的实际边界、完整性与可用尺寸；提示词写了规则，不代表输出一定遵守。不要沿用最新版3×3素材表的排数作为所有新PPT的要求。
+
+### 4.3 合理用药示例：对齐文本，不替代知识
+
+页要点：“两盒名字不同，仍需核对是否有重复成分。”画面职责是展示核对行为，不让药盒外观证明成分相同。
+
+```text
+Depict an adult student at a study desk opening two different, unbranded medicine leaflets side by side and pointing to corresponding sections. Use an overhead view so the two leaflets, two distinct boxes and hands are clearly visible. Show deliberate comparison, not swallowing pills or celebrating a decision. Preserve the ongoing student's burgundy sleeve if this continues the same story; otherwise create a new character. The packaging and leaflet marks are fictional visual props and must not assert a drug name, dose or ingredient. Leave exact ingredient names and the explanation to editable PowerPoint text. Use the attached approved editorial reference for fine ink contours, matte gouache and paper texture; coordinate colors with the presentation palette.
+```
+
+若需要明确呈现“成分A重复”，在图外加经核对的可编辑成分卡，同名同色连接；不能靠生成的说明书乱码表达事实。类似地，钟表、药片数量或酒杯不能擅自成为推荐间隔、剂量或风险概率。
+
+## 5. 专业科学插图提示词与事实边界
+
+### 5.1 先确定知识，再渲染
+
+专业插图与情景人物图分开生成，不强求同一种笔触。整体协调通过页面背景、标签、强调色和线条层级实现。
+
+生成前形成最小事实表：对象与范围、必需结构、空间关系、作用路径、可简化之处、禁止误画之处、核对来源。优先使用教材、权威机构资料或研究综述的相关部分；逐项核对，不用来源数量代替质量。资料不足时减少细节、换可靠图源或询问，不能编造貌似精确的模型。
+
+默认采用精细、清楚、组织层次明确的科学科普插画。正确结构、功能关系与阅读层次优先于炫目效果。可用剖面、分层与颜色强调；不要幼态拟人化器官，也不要代码临时堆砌器官、猜测分子对接或原子结构。
+
+### 5.2 科学插图模板
+
+```text
+Create a standalone, publication-quality scientific educational illustration of {specific subject and scope}, for {audience and explanation depth}.
+The image explains {one established mechanism or structural comparison}, using {section, cutaway or other justified view}.
+Verified structural constraints: {required structures, their locations, boundaries and relationships}.
+Verified process constraints: {what acts on what, direction and outcome; distinguish established facts from omitted detail}.
+Exclude these scientific errors: {explicit subject-specific incorrect structures or pathways}.
+Simplification rules: {permitted functional symbols and qualitative scale}. Do not invent molecular docking, atomic receptor geometry, chemical structures or numerical proportions that have not been supplied and verified.
+Rendering: refined scientific illustration, clearly separated tissue or structural layers, controlled vivid colors coordinated with {presentation palette}, precise boundaries and restrained depth cues. No cute anthropomorphic organs, decorative characters or photograph-like distractions.
+Composition: {view, aspect ratio, focal area and margin}. Keep all essential structures visible without cropping. Use {transparent background for a cutout / specified plain background}.
+Do not generate labels, prose, arrows, numbers or legends; these will be placed as editable PowerPoint elements after structural inspection. Provide visually clear space for {required label positions} without inventing additional structures.
+The required level is {qualitative educational structure / verified higher-detail scope}, not an atomic model or a scale-accurate measurement unless explicitly supplied.
+```
+
+透明背景要同时启用工具的透明选项，不只在提示词中要求。能直接解释的结构须在图里画清楚；独立可编辑的引线、箭头与功能标记在核验后添加。不要让箭头掩盖结构错误。
+
+### 5.3 合理用药已验证示例
+
+这些是说明“如何限定范围”的示例，不是通用主题的必画内容：
+
+- **细菌**：说明具体采用典型革兰阴性杆菌定性切面，核区无核膜，不能画成真核细胞核；不由一个例图推断所有细菌的包被相同。
+- **鼻病毒**：说明无包膜、蛋白质衣壳与单链RNA，不画双链DNA、冠状病毒刺突或细胞器；不推断所有病毒都无包膜或都是RNA病毒。
+- **鼻部组胺路径**：组织分层、肥大细胞与局部受体功能位置须清楚；H1标记不冒充受体原子模型，不把抗组胺药画成清除全部组胺或破坏受体。
+- **可能嗜睡路径**：血脑屏障的内皮边界连续，血细胞在管腔内；小分子药物的定性表达不能画成整粒药片穿墙，也不能把鼻部释放的组胺直接连到脑内。
+
+已采用素材：`source/assets/medical/bacterial_cell.png`、`rhinovirus.png`、`nasal_histamine.png`、`brain_bbb_h1.png`。这些用于观察专业图的层次与表达边界，不能跨主题直接套用。具体核对资料与局限见 `source/assets/medical/NOTES.md` 的对应章节。资料核验不等同于专家签审；不得声称未经进行的专业审查。
+
+## 6. 不合格输出的修正提示词
+
+一次只解决可定位的问题，尽量保留已经通过验收的内容。整体构图、叙事或科学结构根本错误时重绘或换可靠图源，不靠滤镜、边框或“示意图”标注遮掩。
+
+### 6.1 画风偏摄影或幼稚
+
+附上待修正图及已认可的风格参考，先指出要保留的内容：
+
+```text
+Style correction only. Preserve the approved scene facts, character identities, actions, props, panel layout and crop-safe composition in the supplied image. Use the approved style reference to transform the rendering into unmistakably hand-drawn mature editorial reportage illustration: fine confident ink contours, restrained hatched shadows, matte gouache planes, subtle paper texture, naturally proportioned faces and small natural eyes. Coordinate the palette with {presentation palette}.
+Remove photographic skin, pores, lens bokeh, glossy cinematic rendering, oversized sparkling eyes, chibi proportions and childish expressions. Do not change the story, invent new objects, copy another reference scene or add text. Keep the focal action and essential hands and objects readable.
+```
+
+### 6.2 图文不一致、重复构图或科学局部错误
+
+```text
+Correct only this verified problem: {precise error and its location}.
+The accompanying presentation establishes {relevant fact}. Replace {incorrect element} with {verified target state, action or structure}.
+Preserve {approved style, character identity, composition and unaffected structures}. Do not introduce {likely new errors}.
+{For a repetitive scene: use this genuinely new action and camera angle, while keeping only the required ongoing character identity.}
+No captions, fabricated labels or unsupported detail. After the correction, keep {essential evidence} clearly visible at the intended crop.
+```
+
+科学修改依据事实表，而非“看上去更科学”。多次修正仍不准确时停止沿用该图，换独立构图或可靠来源；不能无限堆细节。
+
+## 7. 图像与落版的双重验收
+
+检查输出本身，再检查PPT中的实际显示。必要时返回对应模板修改；不因提示词写得完整而跳过检查。
+
+### 7.1 图片本身
+
+- **语义**：主要动作、物品状态和场景与文本一致吗？是否加入未经文本支持的事实、建议、剂量或结果？观众能否从图里看出本页的具体处境，而不是只有好看的人物？
+- **风格**：是否确实有成熟比例、明确线条与笔触？有没有摄影式初稿、大眼幼态、塑料质感或颜色杂乱？
+- **连续性与差异**：同一故事的人物和物品一致吗？不同案例是否换了角色、场景、动作与机位？是否只是换脸、换衣仍复制同一姿势？
+- **形体与物品**：手、手指、握持关系、杯子、药板、纸张、物体遮挡与关键数量是否合理？坏道具不能仅靠缩小隐藏。
+- **科学结构**：位置、边界、层次、作用对象与路径是否符合事实表？有没有把功能符号画成精确结构，或让精美细节制造错误认识？
+- **文本与权利**：没有乱码、假品牌、未经核实的说明书或水印；非生成图须确认可用来源。图片不得冒充真实事件照片或测量证据。
+- **唯一性**：核对文件或素材格的使用登记，并查看实际画面；文件名不同、哈希不同也可能只是裁切或镜像重复。
+
+### 7.2 放入PPT后
+
+- 在实际页面尺寸与投影阅读条件下，关键动作、结构、道具和标签仍然清楚；不靠查看原图大尺寸才懂。
+- 不拉伸图片，裁切不丢失判断线索；原生分镜裁切不包含隔壁格或白色空格。
+- 图片的比例、面积和留白服从页面任务。无意义的背景细节可裁减，不能挤压结论和选项。
+- 文字与画面不重复堆信息；对白放协调底色容器，必要标签可编辑，字号可读。
+- 不显示“情境”“对话”“悬念”“虚构情节”等无意义标头；来源和生成记录放备注或源码资料。必要单位、分母、结构标签及影响理解的限定信息保留，不能按“精简注解”误删。
+- 题目前不泄露答案；图例颜色与文字一致，数据图不靠装饰图像夸大数值。
+
+内部简短验收记录：页ID、图片ID或素材格、图片职责、参考文件、核验依据、通过项和剩余问题。只在确实检查后标记通过；不写“已保证准确”之类无法证明的结论。
+
+## 8. 最小执行流程与保存边界
+
+1. 读核心摘要及当前所需章节；确认本页主线和配图职责，选择无图、情景图、科学图或数据图。
+2. 填图文对齐卡，检查全套角色与构图分配；机制图另建最小事实表。
+3. 查看并实际附上最新版参考；按本主题填写模板，限定道具、动作、机位、配色与知识边界。
+4. 单独生成图像，检查实际结果；有问题先局部修正，必要时重绘或替换。
+5. 放入版式，添加可编辑对白、标签或数据，检查裁切与投影可读性，再检查全套重复情况。
+6. 源图、提示词和核验资料归入对应源码目录；临时预览留在work/。交付目录只保留PPTX与讲稿DOCX，按仓库规则逐文件处理并增量提交。
+
+目标是稳定延续已经认可的美感与图文匹配方法，而非承诺单凭一句提示词就必然正确。具体参考、可见动作、明确的专业边界与实际验收共同决定最终质量。
