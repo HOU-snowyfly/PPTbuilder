@@ -139,23 +139,6 @@ def microbes(c):
     c.text('宿主细胞',9.77,4.77,1.96,.30,17,TEAL,True,True)
     c.text('无细胞结构\n依赖宿主细胞复制',7.15,5.12,4.99,.66,21,INK,True)
 
-def histamine(c):
-    c.box(.85,2.13,5.63,3.98,MINT);c.box(6.83,2.13,5.63,3.98,LILAC)
-    c.text('鼻部：参与过敏反应',1.13,2.34,4.99,.44,25,TEAL,True)
-    c.student(1.28,3.04,.62,'neutral');c.bubble('阿嚏！',2.61,3.11,1.48,.62,21)
-    c.oval(4.65,3.15,.65,.65,ORANGE);c.text('组胺',5.36,3.28,.86,.32,16,INK,True,True)
-    signal=c.arrow(4.78,3.92,.34,ORANGE);signal.rotation=90
-    c.arrow(2.84,4.44,.39,TEAL);c.box(3.43,4.26,2.30,.63,TEAL);c.text('H1 受体',3.57,4.34,2.02,.45,23,WHITE,True,True)
-    c.pill(1.30,4.43,.91,.30);c.text('抗组胺药',1.13,4.91,1.78,.31,15,CORAL,True)
-    c.text('影响受体作用 → 缓解部分症状',1.13,5.48,4.99,.40,19,TEAL,True)
-    c.text('脑内：也参与维持清醒',7.11,2.34,4.99,.44,25,PURPLE,True)
-    c.text('血脑屏障',8.36,3.00,1.56,.30,16,PURPLE,True,True)
-    for y in [3.43,4.08]:c.box(9.06,y,.16,.43,PURPLE)
-    c.pill(7.32,3.79,1.04,.35);c.arrow(8.53,3.80,.46,CORAL);c.arrow(9.39,3.80,.42,CORAL)
-    c.brain(10.11,3.34,.92);c.text('脑内 H1 信号',9.95,4.53,2.12,.30,15,PURPLE,True,True)
-    c.text('部分药物可进入脑内',7.11,5.08,4.99,.36,22,PURPLE,True)
-    c.text('清醒相关信号受影响 → 可能嗜睡',7.11,5.57,4.99,.34,17)
-
 def allergy_scene(c):
     for j,x in enumerate([.85,6.83]):
         c.scene(1,j,x,2.12,5.63,2.98)
@@ -274,6 +257,8 @@ def finalcase(c,d):
         c.text(item,7.91,y+.16,4.27,.90,22,INK,True)
 
 def draw_revised_slide(slide,d):
+    from medical_visuals import histamine_medical
+    if histamine_medical(slide,d):return True
     from late_visuals import draw_late_slide
     if draw_late_slide(slide,d):return True
     c=Canvas(slide);n=d['n']
@@ -290,6 +275,5 @@ def draw_revised_slide(slide,d):
     elif n==22:dose_rules(c,d)
     elif n==27:finalcase(c,d)
     elif n==18:drinking_case(c,d)
-    elif n==17:histamine(c)
     else:return False
     return True
