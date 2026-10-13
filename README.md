@@ -21,7 +21,7 @@
 
 ## 规则与源码
 
-[PPT_SKILL](PPT_SKILL/)包含逻辑、文本内容、文本显示形式、图片及小问题补丁；[SKILL.md](SKILL.md)保存核心摘要与执行规则。
+[PPT_SKILL](PPT_SKILL/)包含逻辑、文本内容、文本显示形式、[配图](PPT_SKILL/配图)及小问题补丁；原“图片”要求已合并至“配图”，其中第8节提供数据图的选型、制作提示词与核验要求。[SKILL.md](SKILL.md)保存核心摘要与执行规则。
 
 源码：source/content.py保存文案与放映顺序，source/editorial_visuals.py保存杂志版式与场景分配，source/medical_visuals.py保存科学图布局，source/visuals.py保存成分、数据等可编辑图示，source/build.py仅生成PPTX和讲稿DOCX。当前素材位于source/assets/editorial/与source/assets/medical/；旧素材保留为历史制作资料。
 
