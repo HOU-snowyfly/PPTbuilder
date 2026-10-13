@@ -171,8 +171,8 @@ def closing(c,d):
     c.text('药可以常备，\n判断不能省略。',.83,1.17,7.09,1.61,43,NAVY,True)
     for j,item in enumerate(d['items']):
         y=3.26+j*1.02;c.box(.85,y,6.78,.83,ROSE if j==1 else PALE)
-        tag=['看','核·记','问'][j];c.text(tag,1.03,y+.22,.87,.37,19,CORAL,True,True)
-        c.text(item,2.10,y+.21,5.23,.42,23,NAVY,True)
+        tag=['看','核·记','问'][j];c.text(tag,1.01,y+.20,1.19,.43,19,CORAL,True,True)
+        c.text(item,2.39,y+.21,4.94,.42,23,NAVY,True)
     # Unique editable editorial illustration, not a reused scene or photograph.
     c.oval(8.07,1.23,4.49,4.49,PALE)
     c.box(9.57,1.71,2.13,2.39,LILAC)
