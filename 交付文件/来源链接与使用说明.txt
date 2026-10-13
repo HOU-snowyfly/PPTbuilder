@@ -1,5 +1,5 @@
 合理用药：给宿舍药箱上堂课
-27页主讲＋3页隐藏文献附页＋1页隐藏动漫素材附页，35分钟含互动。
+27页主讲＋3页隐藏文献附页＋2页隐藏插图素材附页，35分钟含互动。
 
 使用步骤：
 1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。
@@ -9,7 +9,7 @@
 5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。
 6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。
 
-研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。本版主讲没有图库照片；26幅独立动漫画面各出现一次。逐页素材与分镜编号见图片素材与页码.csv。
+研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/及source/assets/medical/。本版主讲没有图库照片；第14页使用独立医学科普插图，其他情境保持动漫风格；25幅动漫与2幅独立医学科普插图各出现一次。逐页素材与分镜编号见图片素材与页码.csv。
 
 [S1] 国家卫生健康委等（2020）《关于加强医疗机构药事管理促进合理用药的意见》
 https://www.nhc.gov.cn/yzygj/c100068/202002/fdb7240014db4d49827ca25bbb41b177.shtml
@@ -50,9 +50,14 @@ https://www.cdc.gov/antibiotic-use/media/pdfs/Do-Antibiotics-Have-Side-Effects-5
 [S16] Hersh AL et al. Unnecessary Antibiotic Prescribing in US Ambulatory Care Settings, 2010–2015. Clin Infect Dis. 2021;72:133–137.
 https://stacks.cdc.gov/view/cdc/120299/cdc_120299_DS1.pdf
 
-原创动漫素材：
+[S17] Anatomy and Physiology of the Blood-Brain Barrier（脑微血管内皮、紧密连接与支持结构）
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4397166/
+
+原创情境与机制插图：
 cover_rational.png｜封面：一起核对药盒与说明书｜2026-10-13
 storyboard.png｜宿舍、课堂与聚餐分镜｜2026-10-12
-unique_scenes.png｜核药时间线、四道题与组胺肖像｜2026-10-12
+unique_scenes.png｜核药时间线与四道题｜2026-10-12
 actions_storyboard.png｜查、核、问、求助、记录与综合案例｜2026-10-13
+nasal_histamine.png｜鼻黏膜、组胺与感觉神经作用对象｜2026-10-13
+brain_bbb_h1.png｜脑微血管、血脑屏障与脑内H1作用对象｜2026-10-13
 原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13
