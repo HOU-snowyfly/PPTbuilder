@@ -15,10 +15,10 @@ from docx.oxml import OxmlElement as DX
 from docx.oxml.ns import qn
 from content import SLIDES, SOURCES, PRESENTATION_ORDER, QUIZ_ANSWERS
 from visuals import draw_revised_slide
-from late_visuals import ARTWORKS, ART_USAGE
+from editorial_visuals import EDITORIAL_ARTWORKS, EDITORIAL_USAGE
 from medical_visuals import MEDICAL_ARTWORKS, MEDICAL_USAGE
-ALL_ARTWORKS=ARTWORKS+MEDICAL_ARTWORKS
-ALL_USAGE=ART_USAGE+MEDICAL_USAGE
+ALL_ARTWORKS=EDITORIAL_ARTWORKS+MEDICAL_ARTWORKS
+ALL_USAGE=EDITORIAL_USAGE+MEDICAL_USAGE
 
 # Keep original content IDs for scene/photo lookup; show actual running page numbers.
 if sorted(PRESENTATION_ORDER) != sorted(d['n'] for d in SLIDES):
@@ -30,6 +30,11 @@ MAIN_COUNT=len(SLIDES)
 
 ROOT=Path(__file__).parent
 OUT=ROOT/'交付文件'; OUT.mkdir(exist_ok=True)
+DELIVERABLES={'合理用药_双人35分钟.pptx','合理用药_双人逐页讲稿.docx'}
+for artifact in OUT.iterdir():
+    if artifact.is_file() and artifact.name not in DELIVERABLES:artifact.unlink()
+SOURCE_PAGE_COUNT=math.ceil(len(SOURCES)/5)
+ART_PAGE_COUNT=math.ceil(len(ALL_ARTWORKS)/5)
 PHOTODIR=ROOT/'assets'/'photos'
 B='153E75'; R='E3464F'; W='FFFFFF'; FONT='Noto Sans CJK SC'
 PHOTO_CREDITS=[
@@ -136,7 +141,7 @@ def base(d,dark=False):
     # speaker notes include full source URLs, not just numbers
     ss='\n'.join(f'[{sid}] {title}\n{url}' for sid,title,url in SOURCES if sid in d['refs'].split('; '))
     art_notes='\n'.join(f'{name}｜{panel}｜{meaning}' for n,name,panel,meaning in ALL_USAGE if n==d['n'])
-    s.notes_slide.notes_text_frame.text=f"第{d['page']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n情境画面为原创动漫，人物与事件为虚构；医学插图按参考资料核对组织关系，受体为功能标记。\n本页素材：\n{art_notes}"
+    s.notes_slide.notes_text_frame.text=f"第{d['page']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n情境画面为成熟出版物编辑插画，人物与事件为虚构；医学插图按参考资料核对组织关系，受体为功能标记。\n本页素材：\n{art_notes}"
     return s
 def panel(s,x,y,w,h,title,body,num=None):
     rect(s,x,y,w,h,W,B,1.4,True)
@@ -253,14 +258,14 @@ for page,start in enumerate(range(0,len(ALL_ARTWORKS),5),1):
     s=P.slides.add_slide(P.slide_layouts[6]);s._element.set('show','0')
     s.background.fill.solid();s.background.fill.fore_color.rgb=color(W)
     txt(s,f'插图素材来源 / {page}',.7,.52,11,.65,31,B,True)
-    txt(s,'情境用动漫；机制用独立医学科普插图；主体画面各出现一次，文字独立可编辑。',.72,1.25,11.9,.60,15,R)
+    txt(s,'七页情境用成熟编辑插画；专业知识用独立科学插图；文字与题目页不用装饰人物。',.72,1.25,11.9,.60,15,R)
     for j,(name,meaning,created) in enumerate(ALL_ARTWORKS[start:start+5]):
         yy=1.96+j*.95
         pages='、'.join(str(v) for v in sorted({order_index[n] for n,file,panel,desc in ALL_USAGE if file==name}))
         txt(s,name,1.00,yy,11.15,.35,18,B,True)
         txt(s,meaning+'｜生成：'+created+'｜使用页：'+pages,1.00,yy+.40,11.15,.35,14,B)
         line(s,1.00,yy+.81,12.15,yy+.81,B,.45)
-    txt(s,'组织结构与H1解释依据见S14、S17；透明PNG和图形核对说明随独立插图一并提供。',.78,7.02,11.9,.3,12,B)
+    txt(s,'专业结构依据见S14、S17—S19；源素材与核对说明保留在源码目录。',.78,7.02,11.9,.3,12,B)
     s.notes_slide.notes_text_frame.text='插图素材附页，不逐页讲解。\n\n'+'\n'.join(f'{name}｜{meaning}｜{created}' for name,meaning,created in ALL_ARTWORKS[start:start+5])
 
 P.save(OUT/'合理用药_双人35分钟.pptx')
@@ -287,8 +292,8 @@ def sourceparas(doc):
         doc.add_paragraph(f'[{sid}] {title}');p=doc.add_paragraph(url);p.paragraph_format.space_after=DP(10)
 
 doc=setupdoc('合理用药\n双人逐页演讲稿')
-doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜27页主讲＋3页文献附页＋2页插图素材附页')
-doc.add_paragraph('目标：面向具有高中生物基础的非医学专业大一学生，学会处理常见用药选择并识别误区。全部小苏故事均为虚构情境；真实研究单独标明。')
+doc.add_paragraph(f'配套文件：合理用药_双人35分钟.pptx｜27页主讲＋{SOURCE_PAGE_COUNT}页隐藏文献附页＋{ART_PAGE_COUNT}页隐藏素材附页')
+doc.add_paragraph('目标：面向具有高中生物基础的非医学专业大一学生，学会处理常见用药选择并识别误区。不同案例采用小周、晓岚、阿明与小林等虚构人物，同一故事保持人物连续；研究数据另有依据。')
 doc.add_heading('35分钟时间与分工',1)
 table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—4','00:00—05:00','基本原则'],['第二部分','5—16','05:00—22:00','四类宿舍误区'],['第三部分','17—23','22:00—30:00','安全用药方法'],['第四部分','24—27','30:00—35:00','简单综合选择题与收尾']])
 doc.add_paragraph('甲主讲第1—13页，计划15分55秒；乙主讲第14—27页，计划19分05秒。第26页甲补充约15秒，第27页共同收尾。第13页末交接。')
@@ -310,69 +315,8 @@ table(doc,['题目','题目页','揭晓位置','答案'],[['开场选择（单�
 doc.add_heading('参考资料',1);sourceparas(doc)
 doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 
-guide=setupdoc('合理用药\n大纲、逐页设计与资料核验')
-guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容完整性15分、互动效果15分、时间把握10分。围绕“课堂可读、案例可讲、选择可做、时间可控”落实。')
-guide.add_heading('整体方案',1)
-table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；图示采用少量协调强调色；正文浅底色卡片与气泡；动漫鲜活，配色与全稿统一。封面合理用药74pt，常规标题约30pt，主体以20—28pt为主。'],['图片','25幅动漫与2幅独立医学科普插图各出现一次；封面原创核药插画，第17—22页使用独立行动分镜，第24页为新三格综合情境，不使用图库照片；对白可编辑，画面作为图片替换或裁切，机制图和成分示意均为可编辑形状。'],['图表','第7页为宿舍用药信息核对案例；第11页为100格处方比例与五个急诊图标，呈现不必要处方及药物反应负担。'],['互动','2道单选与2道多选；室友群建议点赞，逐条举手，多选可重复举手。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','从用药现象引出信号传递；细菌和病毒；组胺双路径。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏插图素材附页；PDF用于预览，编辑请使用PPTX。']])
-guide.add_heading('四部分大纲',1)
-table(guide,['部分','页码','要点'],[['1 基本原则','1—4','主题封面；开场路线；情境选择；合理用药四原则。'],['2 宿舍误区','5—16','重复成分；已服药信息核对；抗生素不必要处方及副作用急诊负担；抗过敏嗜睡；先投票后聚餐案例。'],['3 安全用药','17—23','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','24—27','三格复方感冒药＋聚餐情境；等权多选消息；行动卡揭晓；三句收尾。']])
-guide.add_heading('逐页文案与图片 / 图表说明',1)
-for d in SLIDES:
-    guide.add_heading(f"{d['page']:02d}｜{d['title']}",2)
-    guide.add_paragraph('页面短文案：'+'；'.join(d['items']))
-    guide.add_paragraph('底部关键句：'+d['takeaway'])
-    guide.add_paragraph('视觉：'+d['visual'])
-    if d.get('logic'):
-        guide.add_paragraph('为什么在这里：'+d['logic']['why_here'])
-        guide.add_paragraph('下一页入口：'+d['logic']['next_step'])
-    guide.add_paragraph(f"分工与时间：{d['speaker']}，{d['sec']}秒。依据：{d['refs'] or '原创课堂组织 / 综合归纳'}。")
-guide.add_heading('数据口径与重绘规则',1)
-guide.add_paragraph('第7页为虚构宿舍用药案例，不再展示模拟超量研究比例。18点与20点只作故事时间线，不是给药间隔；核对具体药名、成分、规格与已服时间和用量。依据S2。')
-guide.add_paragraph('第11页左图：CDC汇总美国门诊抗生素处方至少28%不必要，所引Hersh等2021年论文该估计来自2014—2015年。100格高亮28格，剩余格不表示全部合理，不把它当成中国或大学生发生率。右图：CDC科普资料指出，药物相关急诊约五次有一次由抗生素反应引起。五个急诊图标突出一个；分母为药物反应相关急诊，不是所有急诊，也不是每五名服药者有一人进急诊。不将所有反应归因于滥用，不把两图比例相乘。来源S5、S15、S16。')
-guide.add_paragraph('处方比例采用100格图；药物相关急诊中抗生素反应约占五分之一，用五个急诊图标突出一个表示。图标代表统计比例，不表示服药者个人风险。来源、统计范围和解释边界另附CSV，主讲页面保留结论与必要分母。')
-guide.add_heading('教学边界与常见追问',1)
-for t in [
- '问：感冒就一定不能用抗生素？答：普通感冒通常由病毒引起，抗生素不能治疗病毒；是否合并细菌感染或属于其他疾病，需要医生评估。',
- '问：抗生素是不是一定要吃到药盒空？答：按处方确定的方案使用；有问题及时联系医生，不自行缩短或延长，不按包装剩余量决定疗程。',
- '问：药盒名字不同为什么不能一起吃？答：商品名不是成分表，同一种有效成分可能出现在多个产品中；具体联用应核对并咨询。',
- '问：非嗜睡抗过敏药是不是绝对不会困？答：嗜睡风险较低不等于人人都没有，仍需看说明书并观察个体反应。',
- '问：能不能给个统一剂量或喝酒等待时长？答：具体药物、规格、病情和个体情况不同，不能给出统一值；看实际说明书和专业建议。',
- '课堂材料用于一般健康科普，不承担个体诊断和处方功能。案例均为虚构，无真实同学病史；急症行动以中国场景的120表述。']:
-    guide.add_paragraph(t)
-guide.add_heading('评分点与排练检查',1)
-table(guide,['评分项','检查动作'],[['PPT制作 30','后排能读到主体文字；蓝红白主色配青绿、紫色、橙黄点缀；图形无遮挡；不直接念参考文献。'],['语言表达 30','用自己的语气练熟讲稿；每页只围绕一个重点；甲乙交接自然；数据解释口径。'],['内容完整性 15','四部分完整；四类案例齐全；原则、机制和行动互相对应。'],['互动效果 15','先给阅读时间，再逐项举手；投票后揭晓；即使无人举手也继续解释。'],['时间把握 10','至少完整计时排练一次；检查5、22、30分钟节点；主线约35分钟。']])
-guide.add_heading('完整参考资料',1);sourceparas(guide)
-guide.add_heading('情境与机制插图',1)
-guide.add_paragraph('第14页使用两幅单独渲染的医学科普插图，替换几何器官与动漫头像；组织层次、血脑屏障位置和H1作用按S14、S17核对，标注可编辑。左图解释鼻部症状缓解，右图解释部分药物入脑后可能嗜睡。膜上紫色位置只是功能标记，不是原子结构模型；不画整颗药片穿过屏障，也不把鼻部组胺画成进入脑内的信号。透明PNG另提供于交付文件/机制插图/。')
-guide.add_paragraph('封面与第17—27页按PPT_SKILL整改：先判断页面位置，再落实具体文案、浅底色容器、鲜活动漫与注解精简。第17—23页按方法展开，第24—26页先情境、后多选、再揭晓，第27页呼应封面。27页主讲，35分钟计划保持。')
-guide.add_paragraph('本版25幅动漫与2幅独立医学科普插图各出现一次，无实拍图库照片。原图保存在source/assets/anime/和source/assets/medical/；对白、图表和机制文字可编辑，画面使用PowerPoint原生裁切。素材生成方式、时间与分镜分配保存在素材附页、图片素材与页码.csv及ART_NOTES.md，不在主讲页添加重复说明。')
-for name,meaning,created in ALL_ARTWORKS:
-    pages='、'.join(str(v) for v in sorted({order_index[n] for n,file,panel,desc in ALL_USAGE if file==name}))
-    guide.add_paragraph(f'{name}｜{meaning}｜生成：{created}｜使用页：{pages}')
-guide.add_paragraph('原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13。网页更新时间可能改变；研究数据保持上述固定口径。')
-guide.save(OUT/'合理用药_大纲与逐页设计说明.docx')
 
-with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newline='') as f:
-    cw=csv.writer(f);cw.writerow(['页码','指标','数值','单位','下限','上限','口径','来源'])
-    cw.writerow([order_index[13],'不必要抗生素处方比例',28,'%', '', '', '美国门诊2014—2015估计；CDC表述至少28%；非中国或大学生发生率','S5; S16'])
-    cw.writerow([order_index[13],'药物相关急诊中抗生素反应占比',20,'约%', '', '', 'CDC美国科普汇总：约1/5药物相关急诊由抗生素反应引起；非所有急诊、非服药者风险，不全归因于滥用','S15'])
-
-with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
-    f.write('合理用药：给宿舍药箱上堂课\n27页主讲＋3页隐藏文献附页＋2页隐藏插图素材附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、漫画对白、机制示意和图表可编辑；封面与第17—27页布局由source/late_visuals.py维护；动漫画面可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/及source/assets/medical/。本版主讲没有图库照片；第14页使用独立医学科普插图，其他情境保持动漫风格；25幅动漫与2幅独立医学科普插图各出现一次。逐页素材与分镜编号见图片素材与页码.csv。\n\n')
-    for a,b,c in SOURCES:f.write(f'[{a}] {b}\n{c}\n\n')
-    f.write('原创情境与机制插图：\n')
-    for name,meaning,created in ALL_ARTWORKS:
-        f.write(f'{name}｜{meaning}｜{created}\n')
-    f.write('原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13\n')
-
-# Replace the obsolete photograph list with actual image/panel usage.
-old_photos=OUT/'真实照片来源.csv'
-if old_photos.exists():old_photos.unlink()
-with (OUT/'图片素材与页码.csv').open('w',encoding='utf-8-sig',newline='') as f:
-    writer=csv.writer(f);writer.writerow(['页码','素材文件','分镜编号','内容','素材类型','生成日期'])
-    dates={name:created for name,meaning,created in ALL_ARTWORKS}
-    for n,name,panel,meaning in sorted(ALL_USAGE,key=lambda row:order_index[row[0]]):
-        writer.writerow([order_index[n],name,panel,meaning,'独立医学科普插图（按资料核对）' if name in {v[0] for v in MEDICAL_ARTWORKS} else '原创AI生成动漫',dates[name]])
-
+# Publish only the deck and manuscript; QA artifacts stay in work/.
 (ROOT/'slides.json').write_text(json.dumps(SLIDES,ensure_ascii=False,indent=2),encoding='utf-8')
-print('Created files:',*[str(p) for p in OUT.iterdir()],sep='\n')
+assert {p.name for p in OUT.iterdir() if p.is_file()}==DELIVERABLES
+print('Generated deck and manuscript only.')
