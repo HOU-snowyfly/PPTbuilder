@@ -15,6 +15,7 @@ from docx.oxml import OxmlElement as DX
 from docx.oxml.ns import qn
 from content import SLIDES, SOURCES, PRESENTATION_ORDER, QUIZ_ANSWERS
 from visuals import draw_revised_slide
+from late_visuals import ARTWORKS, ART_USAGE
 
 # Keep original content IDs for scene/photo lookup; show actual running page numbers.
 if sorted(PRESENTATION_ORDER) != sorted(d['n'] for d in SLIDES):
@@ -39,7 +40,7 @@ PHOTO_CREDITS=[
  ('hospital-02.jpg','Tasha Kostyuk','https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8','Unsplash License','https://unsplash.com/license'),
  ('clinic-01.jpg','Martha Dominguez de Gouveia','https://unsplash.com/photos/hospital-lobby-reception-with-signage-nMyM7fxpokE','Unsplash License','https://unsplash.com/license'),
 ]
-PHOTO_BY_PAGE={1:['tablet-hand.jpg'],21:['pill-bottle.jpg'],23:['pharmacy-02.jpg'],24:['hospital-02.jpg'],25:['pharmacy-01.jpg'],30:['clinic-01.jpg']}
+PHOTO_BY_PAGE={}
 PHOTO_CREDITS=[row for row in PHOTO_CREDITS if row[0] in {name for photos in PHOTO_BY_PAGE.values() for name in photos}]
 PHOTO_INDEX={item[0]:item for item in PHOTO_CREDITS}
 P=Presentation(); P.slide_width=Inches(13.333333); P.slide_height=Inches(7.5)
@@ -131,8 +132,8 @@ def base(d,dark=False):
         txt(s,f"{d['page']:02d} / {MAIN_COUNT}",11.75,7.06,.9,.28,11,B,False,PP_ALIGN.RIGHT)
     # speaker notes include full source URLs, not just numbers
     ss='\n'.join(f'[{sid}] {title}\n{url}' for sid,title,url in SOURCES if sid in d['refs'].split('; '))
-    photo_notes='\n'.join(f"{PHOTO_INDEX[n][1]}｜{PHOTO_INDEX[n][2]}｜{PHOTO_INDEX[n][3]}" for n in PHOTO_BY_PAGE.get(d['n'],[]))
-    s.notes_slide.notes_text_frame.text=f"第{d['page']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n真实照片为图库场景示意，不呈现虚构案例中的真实人物、药品或事件。\n图片来源：\n{photo_notes}"
+    art_notes='\n'.join(f'{name}｜{panel}｜{meaning}' for n,name,panel,meaning in ART_USAGE if n==d['n'])
+    s.notes_slide.notes_text_frame.text=f"第{d['page']}页｜{d['speaker']}主讲｜建议{d['sec']}秒\n{d.get('cue','')}\n\n{d['notes']}\n\n视觉说明：{d['visual']}\n\n参考：\n{ss}\n\n动漫画面为原创教学情境，人物与事件为虚构。\n本页素材：\n{art_notes}"
     return s
 def panel(s,x,y,w,h,title,body,num=None):
     rect(s,x,y,w,h,W,B,1.4,True)
@@ -234,7 +235,7 @@ for page,start in enumerate(range(0,len(SOURCES),5),1):
     s=P.slides.add_slide(P.slide_layouts[6]);s._element.set('show','0')
     s.background.fill.solid();s.background.fill.fore_color.rgb=color(W)
     txt(s,f'参考资料 / {page}',.7,.52,11,.65,31,B,True)
-    txt(s,'附页，不计入35分钟｜点击条目标题可访问原文｜原始资料：2026-10-09；新增CDC数据核对与版面修订：2026-10-12',.72,1.26,11.9,.41,15,R)
+    txt(s,'附页，不计入35分钟｜点击条目标题可访问原文｜原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13',.72,1.26,11.9,.41,15,R)
     for j,(sid,title,url) in enumerate(SOURCES[start:start+5]):
         yy=1.96+j*.96;badge(s,sid,.77,yy,.7,B)
         o=txt(s,title,1.73,yy-.06,10.88,.72,14.5,B)
@@ -244,23 +245,19 @@ for page,start in enumerate(range(0,len(SOURCES),5),1):
     txt(s,'图表按原始数据重绘；案例为虚构，实拍照片另见图片来源附页。',.78,7.02,11.9,.3,12,B)
     s.notes_slide.notes_text_frame.text='参考文献附页，不逐页讲解。\n\n'+'\n\n'.join(f'[{a}] {b}\n{c}' for a,b,c in SOURCES[start:start+5])
 
-for page,start in enumerate(range(0,len(PHOTO_CREDITS),5),1):
-    s=P.slides.add_slide(P.slide_layouts[6]);s._element.set('show','0')
-    s.background.fill.solid();s.background.fill.fore_color.rgb=color(W)
-    txt(s,f'真实照片来源 / {page}',.7,.52,11,.65,31,B,True)
-    txt(s,'以下列出真实图库照片许可；动漫分镜为AI生成原创，人物与事件为虚构教学示意。',.72,1.25,11.9,.6,15,R)
-    for j,(name,creator,url,license_name,license_url) in enumerate(PHOTO_CREDITS[start:start+5]):
-        yy=1.96+j*.95
-        badge(s,f'P{start+j+1}',.77,yy,.7,B)
-        o=txt(s,f'{creator} · {name}',1.73,yy-.06,10.88,.42,14.5,B)
-        for p in o.text_frame.paragraphs:
-            for run in p.runs:run.hyperlink.address=url
-        o2=txt(s,license_name+' · 点击标题访问原图',1.73,yy+.37,10.88,.32,11,R)
-        for p in o2.text_frame.paragraphs:
-            for run in p.runs:run.hyperlink.address=license_url
-        line(s,1.73,yy+.79,12.59,yy+.79,B,.45)
-    txt(s,'动漫插画为AI生成原创，非实拍；图库许可与分镜素材说明见配套文件。',.78,7.02,11.9,.3,12,B)
-    s.notes_slide.notes_text_frame.text='真实照片来源附页，不逐页讲解。\n\n'+'\n\n'.join(f'{name}｜{creator}\n{url}\n{license_name}: {license_url}' for name,creator,url,license_name,license_url in PHOTO_CREDITS[start:start+5])
+# Current deck uses original anime throughout; source records stay off the main slides.
+s=P.slides.add_slide(P.slide_layouts[6]);s._element.set('show','0')
+s.background.fill.solid();s.background.fill.fore_color.rgb=color(W)
+txt(s,'动漫素材来源',.7,.52,11,.65,31,B,True)
+txt(s,'原创AI生成动漫；角色形象统一，具体画面各使用一次；对白独立可编辑。',.72,1.25,11.9,.60,15,R)
+for j,(name,meaning,created) in enumerate(ARTWORKS):
+    yy=2.02+j*1.05
+    pages='、'.join(str(v) for v in sorted({order_index[n] for n,file,panel,desc in ART_USAGE if file==name}))
+    txt(s,name,1.00,yy,11.15,.38,19,B,True)
+    txt(s,meaning+'｜生成：'+created+'｜使用页：'+pages,1.00,yy+.45,11.15,.38,15,B)
+    line(s,1.00,yy+.89,12.15,yy+.89,B,.45)
+txt(s,'分镜编号与逐页用途见图片素材与页码.csv；原图、分配说明与核验报告随ZIP提供。',.78,7.02,11.9,.3,12,B)
+s.notes_slide.notes_text_frame.text='动漫素材附页，不逐页讲解。\n\n'+'\n'.join(f'{name}｜{meaning}｜{created}' for name,meaning,created in ARTWORKS)
 
 P.save(OUT/'合理用药_双人35分钟.pptx')
 
@@ -286,7 +283,7 @@ def sourceparas(doc):
         doc.add_paragraph(f'[{sid}] {title}');p=doc.add_paragraph(url);p.paragraph_format.space_after=DP(10)
 
 doc=setupdoc('合理用药\n双人逐页演讲稿')
-doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜27页主讲＋3页文献附页＋2页图片来源附页')
+doc.add_paragraph('配套文件：合理用药_双人35分钟.pptx｜27页主讲＋3页文献附页＋1页动漫素材附页')
 doc.add_paragraph('目标：面向具有高中生物基础的非医学专业大一学生，学会处理常见用药选择并识别误区。全部小苏故事均为虚构情境；真实研究单独标明。')
 doc.add_heading('35分钟时间与分工',1)
 table(doc,['部分','主讲页','时间','内容'],[['第一部分','1—4','00:00—05:00','基本原则'],['第二部分','5—16','05:00—22:00','四类宿舍误区'],['第三部分','17—23','22:00—30:00','安全用药方法'],['第四部分','24—27','30:00—35:00','简单综合选择题与收尾']])
@@ -312,15 +309,18 @@ doc.save(OUT/'合理用药_双人逐页讲稿.docx')
 guide=setupdoc('合理用药\n大纲、逐页设计与资料核验')
 guide.add_paragraph('设计依据：PPT制作30分、语言表达30分、内容完整性15分、互动效果15分、时间把握10分。围绕“课堂可读、案例可讲、选择可做、时间可控”落实。')
 guide.add_heading('整体方案',1)
-table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；图示采用青绿、紫色、橙黄点缀；真实照片保留自然色。标题约30pt，主体以20—30pt为主。'],['图片','6页主讲使用6张各出现一次的图库照片；17幅不同动漫分镜各出现一次，情境、选择题和综合挑战均避免复用；对白可编辑，画面作为图片替换或裁切，机制图和成分示意均为可编辑形状。'],['图表','第7页为宿舍用药信息核对案例；第11页为100格处方比例与五个急诊图标，呈现不必要处方及药物反应负担。'],['互动','2道单选与2道多选；室友群建议点赞，逐条举手，多选可重复举手。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','从用药现象引出信号传递；细菌和病毒；组胺双路径。'],['文件使用','PPT内含3页隐藏文献附页、2页隐藏图片来源附页；PDF用于预览，编辑请使用PPTX。']])
+table(guide,['项目','实现方式'],[['内容结构','基本原则5分钟；宿舍误区17分钟；安全用药8分钟；选择挑战5分钟。'],['视觉','16:9；模板蓝 #153E75、红 #E3464F、白 #FFFFFF；图示采用少量协调强调色；正文浅底色卡片与气泡；动漫鲜活，配色与全稿统一。封面合理用药74pt，常规标题约30pt，主体以20—28pt为主。'],['图片','26幅独立动漫画面各出现一次；封面原创核药插画，第17—22页使用独立行动分镜，第24页为新三格综合情境，不使用图库照片；对白可编辑，画面作为图片替换或裁切，机制图和成分示意均为可编辑形状。'],['图表','第7页为宿舍用药信息核对案例；第11页为100格处方比例与五个急诊图标，呈现不必要处方及药物反应负担。'],['互动','2道单选与2道多选；室友群建议点赞，逐条举手，多选可重复举手。'],['演讲支持','完整逐页备注、双人台词、交接提示和累计时间；附独立Word讲稿。'],['高中生物','从用药现象引出信号传递；细菌和病毒；组胺双路径。'],['文件使用','PPT内含3页隐藏文献附页、1页隐藏动漫素材附页；PDF用于预览，编辑请使用PPTX。']])
 guide.add_heading('四部分大纲',1)
-table(guide,['部分','页码','要点'],[['1 基本原则','1—4','开场路线；情境选择；合理用药四原则；用药现象与信号传递。'],['2 宿舍误区','5—16','重复成分；已服药信息核对；抗生素不必要处方及感染风险；抗过敏嗜睡；先投票后聚餐案例。'],['3 安全用药','17—23','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','24—27','复方感冒药＋聚餐情境；多选建议；逐项揭晓；三句收尾。']])
+table(guide,['部分','页码','要点'],[['1 基本原则','1—4','主题封面；开场路线；情境选择；合理用药四原则。'],['2 宿舍误区','5—16','重复成分；已服药信息核对；抗生素不必要处方及副作用急诊负担；抗过敏嗜睡；先投票后聚餐案例。'],['3 安全用药','17—23','看核问记；说明书六处；剂量、时间和剂型；咨询信息；就医信号；药箱管理；动作回顾。'],['4 选择挑战','24—27','三格复方感冒药＋聚餐情境；等权多选消息；行动卡揭晓；三句收尾。']])
 guide.add_heading('逐页文案与图片 / 图表说明',1)
 for d in SLIDES:
     guide.add_heading(f"{d['page']:02d}｜{d['title']}",2)
     guide.add_paragraph('页面短文案：'+'；'.join(d['items']))
     guide.add_paragraph('底部关键句：'+d['takeaway'])
-    guide.add_paragraph('视觉：'+d['visual']+('；另嵌入真实照片：'+'、'.join(PHOTO_BY_PAGE[d['n']]) if d['n'] in PHOTO_BY_PAGE else ''))
+    guide.add_paragraph('视觉：'+d['visual'])
+    if d.get('logic'):
+        guide.add_paragraph('为什么在这里：'+d['logic']['why_here'])
+        guide.add_paragraph('下一页入口：'+d['logic']['next_step'])
     guide.add_paragraph(f"分工与时间：{d['speaker']}，{d['sec']}秒。依据：{d['refs'] or '原创课堂组织 / 综合归纳'}。")
 guide.add_heading('数据口径与重绘规则',1)
 guide.add_paragraph('第7页为虚构宿舍用药案例，不再展示模拟超量研究比例。18点与20点只作故事时间线，不是给药间隔；核对具体药名、成分、规格与已服时间和用量。依据S2。')
@@ -339,13 +339,12 @@ guide.add_heading('评分点与排练检查',1)
 table(guide,['评分项','检查动作'],[['PPT制作 30','后排能读到主体文字；蓝红白主色配青绿、紫色、橙黄点缀；图形无遮挡；不直接念参考文献。'],['语言表达 30','用自己的语气练熟讲稿；每页只围绕一个重点；甲乙交接自然；数据解释口径。'],['内容完整性 15','四部分完整；四类案例齐全；原则、机制和行动互相对应。'],['互动效果 15','先给阅读时间，再逐项举手；投票后揭晓；即使无人举手也继续解释。'],['时间把握 10','至少完整计时排练一次；检查5、22、30分钟节点；主线约35分钟。']])
 guide.add_heading('完整参考资料',1);sourceparas(guide)
 guide.add_heading('原创动漫素材',1)
-guide.add_paragraph('情境漫画使用2026-10-12生成的原创动漫分镜，统一小苏与室友形象，非真实学生或事件。宿舍核药、课堂困倦和聚餐场景均使用动漫画面；情境、对话、悬念等阶段标签已删除，仅保留实际时间与题型等必要信息。对白为可编辑PPT文字，图片可替换或裁切。原图和说明见source/assets/anime/。')
-guide.add_heading('真实照片来源与许可',1)
-guide.add_paragraph('以下均为真实图库照片，非生成图。图库照片仅说明场景；人物、药品、建筑与小苏虚构案例无关，也不代表苏州大学校园。Pexels 与 Unsplash 许可允许将照片用于演示文稿；保留摄影者与原图链接便于复核。')
-for name,creator,url,license_name,license_url in PHOTO_CREDITS:
-    guide.add_paragraph(f'{name}｜{creator}｜{license_name}')
-    guide.add_paragraph(url+'\n'+license_url)
-guide.add_paragraph('原始资料：2026-10-09；新增CDC数据核对与版面修订：2026-10-12。网页更新时间可能改变；论文数值按上述固定发表版本使用。全文由课堂语言转述，未照搬整段原文或未授权品牌图像。')
+guide.add_paragraph('封面与第17—27页按PPT_SKILL整改：先判断页面位置，再落实具体文案、浅底色容器、鲜活动漫与注解精简。第17—23页按方法展开，第24—26页先情境、后多选、再揭晓，第27页呼应封面。27页主讲，35分钟计划保持。')
+guide.add_paragraph('本版26幅独立动漫画面各出现一次，无实拍图库照片。原图保存在source/assets/anime/；对白、图表和机制文字可编辑，画面使用PowerPoint原生裁切。素材生成方式、时间与分镜分配保存在素材附页、图片素材与页码.csv及ART_NOTES.md，不在主讲页添加重复说明。')
+for name,meaning,created in ARTWORKS:
+    pages='、'.join(str(v) for v in sorted({order_index[n] for n,file,panel,desc in ART_USAGE if file==name}))
+    guide.add_paragraph(f'{name}｜{meaning}｜生成：{created}｜使用页：{pages}')
+guide.add_paragraph('原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13。网页更新时间可能改变；研究数据保持上述固定口径。')
 guide.save(OUT/'合理用药_大纲与逐页设计说明.docx')
 
 with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newline='') as f:
@@ -354,18 +353,21 @@ with (OUT/'图表原始数据与口径.csv').open('w',encoding='utf-8-sig',newli
     cw.writerow([order_index[13],'药物相关急诊中抗生素反应占比',20,'约%', '', '', 'CDC美国科普汇总：约1/5药物相关急诊由抗生素反应引起；非所有急诊、非服药者风险，不全归因于滥用','S15'])
 
 with (OUT/'来源链接与使用说明.txt').open('w',encoding='utf-8') as f:
-    f.write('合理用药：给宿舍药箱上堂课\n27页主讲＋3页隐藏文献附页＋2页隐藏图片来源附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、漫画对白、机制示意和图表可编辑；动漫画面与照片可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。真实照片为图库场景示意，不对应虚构故事中的真实人物、药品或场所。\n\n')
+    f.write('合理用药：给宿舍药箱上堂课\n27页主讲＋3页隐藏文献附页＋1页隐藏动漫素材附页，35分钟含互动。\n\n使用步骤：\n1. 用PowerPoint打开PPTX，把封面的同学甲/乙替换为姓名。\n2. 打开演示者视图，备注含逐页讲稿。\n3. 主讲文字、漫画对白、机制示意和图表可编辑；封面与第17—27页布局由source/late_visuals.py维护；动漫画面可替换或裁切。第7页是信息核对案例；第11页数值改动时需同步修改source/visuals.py中的格子数量、急诊图标与正文。\n4. 全稿使用Noto Sans CJK SC（思源黑体系列）。如果电脑未安装，可在PowerPoint“替换字体”改为微软雅黑；替换后检查换行。PDF用于固定版式预览。\n5. 来源附页设为隐藏，放映时跳过；编辑视图仍可查看。\n6. 至少完整计时排练一次，检查5、22、30分钟节点；35分钟是目标时长，文件不自动播放。\n\n研究数据按原文重绘。动漫分镜为AI生成原创，人物与场景为虚构教学示意；对白在PPT中可编辑，动漫图片可替换或裁切。原图与说明位于source/assets/anime/。本版主讲没有图库照片；26幅独立动漫画面各出现一次。逐页素材与分镜编号见图片素材与页码.csv。\n\n')
     for a,b,c in SOURCES:f.write(f'[{a}] {b}\n{c}\n\n')
-    f.write('真实照片来源与许可：\n')
-    for name,creator,url,license_name,license_url in PHOTO_CREDITS:
-        f.write(f'{name}｜{creator}\n原图：{url}\n许可：{license_name} {license_url}\n\n')
-    f.write('原始资料：2026-10-09；新增CDC数据核对与版面修订：2026-10-12\n')
+    f.write('原创动漫素材：\n')
+    for name,meaning,created in ARTWORKS:
+        f.write(f'{name}｜{meaning}｜{created}\n')
+    f.write('原始资料：2026-10-09；新增CDC数据核对：2026-10-12；封面与后半段整改：2026-10-13\n')
 
-with (OUT/'真实照片来源.csv').open('w',encoding='utf-8-sig',newline='') as f:
-    writer=csv.writer(f);writer.writerow(['文件','摄影者/来源','原图页面','使用许可','许可链接','使用页码'])
-    for name,creator,url,license_name,license_url in PHOTO_CREDITS:
-        pages='、'.join(str(order_index[n]) for n,photos in PHOTO_BY_PAGE.items() if name in photos)
-        writer.writerow([name,creator,url,license_name,license_url,pages])
+# Replace the obsolete photograph list with actual image/panel usage.
+old_photos=OUT/'真实照片来源.csv'
+if old_photos.exists():old_photos.unlink()
+with (OUT/'图片素材与页码.csv').open('w',encoding='utf-8-sig',newline='') as f:
+    writer=csv.writer(f);writer.writerow(['页码','素材文件','分镜编号','内容','素材类型','生成日期'])
+    dates={name:created for name,meaning,created in ARTWORKS}
+    for n,name,panel,meaning in sorted(ART_USAGE,key=lambda row:order_index[row[0]]):
+        writer.writerow([order_index[n],name,panel,meaning,'原创AI生成动漫',dates[name]])
 
 (ROOT/'slides.json').write_text(json.dumps(SLIDES,ensure_ascii=False,indent=2),encoding='utf-8')
 print('Created files:',*[str(p) for p in OUT.iterdir()],sep='\n')
