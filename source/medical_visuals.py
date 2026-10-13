@@ -30,7 +30,7 @@ def histamine_medical(slide,d):
     picture(c,'nasal_histamine.png',1.12,2.83,5.10)
     picture(c,'brain_bbb_h1.png',7.09,2.83,5.10)
     # Leaders attach to tissue locations, not to a guessed molecular receptor shape.
-    label(c,'组胺',3.10,2.97,.88,(3.48,4.43),TEAL)
+    label(c,'组胺',3.10,2.97,.88,(3.33,4.63),TEAL)
     label(c,'H1受体',4.53,4.98,1.22,(3.80,4.85),PURPLE)
     label(c,'药物分子',7.12,2.97,1.40,(8.82,3.67),INK)
     label(c,'血脑屏障',10.62,3.91,1.43,(10.12,4.40),PURPLE)
