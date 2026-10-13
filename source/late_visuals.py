@@ -13,7 +13,7 @@ ACTION_COLS=[(0,507),(514,1023),(1031,1536)]
 ARTWORKS=[
  ('cover_rational.png','封面：一起核对药盒与说明书','2026-10-13'),
  ('storyboard.png','宿舍、课堂与聚餐分镜','2026-10-12'),
- ('unique_scenes.png','核药时间线、四道题与组胺肖像','2026-10-12'),
+ ('unique_scenes.png','核药时间线与四道题','2026-10-12'),
  ('actions_storyboard.png','查、核、问、求助、记录与综合案例','2026-10-13'),
 ]
 # Stable content ID, file, source panel ID, meaning; verified against actual PPT pictures.
@@ -25,7 +25,7 @@ ART_USAGE += [(n,'storyboard.png',f'R{r+1}C{c+1}',name) for n,r,c,name in [
 ART_USAGE += [(n,'unique_scenes.png',f'R{r+1}C{c+1}',name) for n,r,c,name in [
  (8,0,0,'查看记录'),(8,0,1,'症状仍在'),(8,0,2,'核对包装'),
  (2,1,0,'开场题'),(9,1,1,'成分题'),(19,1,2,'聚餐题'),
- (28,2,0,'综合题'),(17,2,1,'鼻部组胺肖像')]]
+ (28,2,0,'综合题')]]
 ART_USAGE += [(n,'actions_storyboard.png',f'R{r+1}C{c+1}',name) for n,r,c,name in [
  (20,0,0,'看核问记'),(21,0,1,'读说明书'),(22,0,2,'核使用要求'),
  (23,1,0,'咨询药师'),(24,1,1,'及时求助'),(25,1,2,'留信息和记录'),
