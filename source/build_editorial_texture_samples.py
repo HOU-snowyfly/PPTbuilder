@@ -176,7 +176,8 @@ def clone_shapes(source, target, dx=0, dy=0):
         fresh.top += Inches(dy)
 
 
-def compare(original, revised):
+def compare(original, revised, baseline_pages=PAGES, baseline_label="原版",
+            revision_label="暖白纸感与深色编辑版"):
     result = Presentation(ORIGINAL)  # Retain the original theme so baseline looks unchanged.
     old_ids = list(result.slides._sldIdLst)
     result.slide_width = original.slide_width * 2
@@ -186,13 +187,14 @@ def compare(original, revised):
         slide = result.slides.add_slide(result.slide_layouts[6])
         box(slide, 0, 0, width * 2, .6, "F7F2E8")
         box(slide, 0, .6, width, 7.5, "FFFFFF")
-        text(slide, f"原版 · 第{page}页", .65, .12, 8.0, .36, 20, bold=True)
-        text(slide, f"新版 · 暖白纸感与深色编辑版", width + .65, .12,
+        source = original.slides[baseline_pages[index] - 1]
+        text(slide, f"{baseline_label} · 第{page}页", .65, .12, 8.0, .36, 20, bold=True)
+        text(slide, f"新版 · {revision_label}", width + .65, .12,
              10.0, .36, 20, bold=True)
-        clone_shapes(original.slides[page - 1], slide, dy=.6)
+        clone_shapes(source, slide, dy=.6)
         clone_shapes(revised.slides[index], slide, dx=width, dy=.6)
         box(slide, width, .6, .016, 7.5, "B6B8B4")
-        slide.notes_slide.notes_text_frame.text = original.slides[page - 1].notes_slide.notes_text_frame.text
+        slide.notes_slide.notes_text_frame.text = source.notes_slide.notes_text_frame.text
     for entry in old_ids:
         result.part.drop_rel(entry.rId)
         result.slides._sldIdLst.remove(entry)
