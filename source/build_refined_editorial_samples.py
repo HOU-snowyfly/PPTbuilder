@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from pptx import Presentation
@@ -23,7 +25,7 @@ from build_global_style_samples import box, emergency_icon, original_texts, pict
 
 
 OUT = ROOT / "work/refined-editorial-samples"
-PREVIOUS = ROOT / "交付文件/质感改版样页/合理用药_质感改版_三页样页.pptx"
+PREVIOUS = ROOT / "work/editorial-texture-samples/合理用药_质感改版_三页样页.pptx"
 THEME.update({"paper": "F8F5EE", "tint": "F3EEE4", "muted": "DBD6CA",
               "ink": "234453", "accent": "D65162", "rule": "D5CEC2"})
 
@@ -144,6 +146,9 @@ def framework(presentation, original):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    if not PREVIOUS.is_file():
+        subprocess.run([sys.executable, str(ROOT / "source/build_editorial_texture_samples.py")],
+                       check=True, stdout=subprocess.DEVNULL)
     watched = [ORIGINAL, PREVIOUS, ROOT / "交付文件/合理用药_双人逐页讲稿.docx"]
     initial = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                for p in watched}
