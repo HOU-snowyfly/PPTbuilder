@@ -1,0 +1,27 @@
+{
+  "edition": "精致编辑版",
+  "main_slides": 27,
+  "total_slides": 33,
+  "hidden_slides": 6,
+  "planned_seconds": 2100,
+  "page_text_notes_and_existing_images_preserved": true,
+  "missing_rendered_text": [],
+  "docx_main_text_and_tables_preserved": true,
+  "unique_story_scientific_frames": 18,
+  "data_grid": [
+    100,
+    28
+  ],
+  "data_ed": [
+    5,
+    1
+  ],
+  "actual_pdf_pages": 27,
+  "pptx_sha256": "013c44010fef998ab6880e27128dda01ad039ed6c31b71becff13634526d17e0",
+  "docx_sha256": "fb1ed84fc30b18e9fb644b9237703459e6408c284ea2342bb550abafd02838de",
+  "original_pptx_sha256": "6fc13e05cc037a18628bc80b3035f4c2012474d73738bf7e3854a340403196ad",
+  "original_docx_sha256": "6d05593ff77cf70cd1dc7b8884d955704db45406e8fa81d356fae528d9a1445e",
+  "visual_review": "27主讲页缩略图检查；三张已确认样页沿用；专业图结构与标签位置保留",
+  "pptx": "交付文件/精致编辑版/合理用药_精致编辑版_双人35分钟.pptx",
+  "docx": "交付文件/精致编辑版/合理用药_精致编辑版_双人逐页讲稿.docx"
+}
